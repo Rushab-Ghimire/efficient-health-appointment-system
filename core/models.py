@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from io import BytesIO
+from django.core.files import File
+import qrcode
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -24,3 +27,20 @@ class Appointment(models.Model):
     time = models.TimeField()
     qr_code = models.ImageField(upload_to='qr_codes/', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+    # Save first time to generate ID (if not yet assigned)
+        if not self.id:
+            super().save(*args, **kwargs)
+
+        # Now the ID exists, create QR code
+        qr_data = f"AppointmentID: {self.id}, Patient: {self.patient.username}, Doctor: {self.doctor.user.username}, Date: {self.date}, Time: {self.time}"
+        
+        qr = qrcode.make(qr_data)
+        buffer = BytesIO()
+        qr.save(buffer, format='PNG')
+        file_name = f'qr_{self.id}.png'
+
+        self.qr_code.save(file_name, File(buffer), save=False)  # assign QR code without resaving to DB
+
+        super().save(*args, **kwargs)  # final save, to store QR code path
