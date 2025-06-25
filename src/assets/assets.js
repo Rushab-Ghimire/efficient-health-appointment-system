@@ -23,10 +23,11 @@ import doctor9 from './doctor9.jpg';
 import doctor10 from './doctor10.jpg';
 import image from './image.jpg';
 import verified_icon from './verified_icon.png';
+import about_image from './about_image.jpg';
 
 
 export const assets = {
-  logo, Profile_pic, icon, group_profiles, header_pro, arrow_button,appointment_img,image,verified_icon
+  logo, Profile_pic, icon, group_profiles, header_pro, arrow_button,appointment_img,image,verified_icon,about_image
 };
 
 export const specialityData = [
