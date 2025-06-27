@@ -24,10 +24,12 @@ import doctor10 from './doctor10.jpg';
 import image from './image.jpg';
 import verified_icon from './verified_icon.png';
 import about_image from './about_image.jpg';
+import menu_icon from './menu_icon.png';
+import cross_icon from './cross_icon.png';
 
 
 export const assets = {
-  logo, Profile_pic, icon, group_profiles, header_pro, arrow_button,appointment_img,image,verified_icon,about_image
+  logo, Profile_pic, icon, group_profiles, header_pro, arrow_button,appointment_img,image,verified_icon,about_image,menu_icon,cross_icon
 };
 
 export const specialityData = [
