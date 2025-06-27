@@ -19,7 +19,7 @@ const Header = () => {
                     />
                     <p className="text-base md:text-lg font-light leading-relaxed text-blue-100">
                         Browse trusted professionals and get care at your convenience.
-                        Fast, easy, and reliable appointment bookings – all in one place.
+                        Fast, easy, and reliable appointment bookings all in one place.
                     </p>
                 </div>
 

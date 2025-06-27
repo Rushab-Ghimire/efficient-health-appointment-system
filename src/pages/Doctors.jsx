@@ -104,11 +104,13 @@ const Doctors = () => {
               className='bg-white border border-blue-100 rounded-2xl shadow-md hover:shadow-lg cursor-pointer hover:-translate-y-1 transform transition duration-300 overflow-hidden group'
               key={index}
             >
-              <img
-                className='w-full h-44 object-cover bg-blue-50 rounded-t-2xl group-hover:scale-105 transition-transform duration-300'
-                src={item.image}
-                alt={item.name}
-              />
+                 <div className='w-full aspect-[4/3] bg-blue-50'>
+                <img
+                  className='w-full h-full object-contain group-hover:scale-105 transition-transform duration-300'
+                  src={item.image}
+                  alt={item.name}
+                />
+              </div>
               <div className='p-4 space-y-1'>
                 <div className='flex items-center gap-2 text-sm text-green-600 mb-1'>
                   <span className='w-2 h-2 bg-green-500 rounded-full'></span>

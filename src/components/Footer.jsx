@@ -1,46 +1,50 @@
-import React from 'react'
-import { assets } from '../assets/assets'
+import React from 'react';
+import { assets } from '../assets/assets';
 
 const Footer = () => {
   return (
-    <div className='md:mx-10'>
-        <div className='flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm '>
-            {/* ----- Left Section -----*/}
-            <div>
-                <img className='mb-5 w-40' src={assets.logo} alt="" />
-                <p className='w-full md:w-2/3  text-gray-600 leading-6'>"Book trusted healthcare appointments easily and efficiently your health, your schedule, your control."</p>
-            </div>
-             {/* ----- Center Section -----*/}
-            <div>
-                <p className='text-xl font-medium mb-5'>COMPANY</p>
-                <ul className='flex flex-col gap-2 text-gray-600'>
-                    <li>Home</li>
-                    <li>About us</li>
-                    <li>Contact us</li>
-                    <li>Privacy policy</li>
-                </ul>
-            </div>
-             {/* ----- Right Section -----*/}
-            <div>
-                <p className='text-xl font-medium mb-5'>GET IN TOUCH</p>
-                <ul className='flex flex-col gap-2 text-gray-600'>
-                    <li>+977 9825476625</li>
-                    <li>medicalcare77@gmail.com</li>
-                </ul>
-                
-            </div>
-
-
+    <div className="bg-gray-100 text-gray-700 px-6 sm:px-12 md:mx-10 rounded-t-3xl shadow-inner">
+      {/* Main Footer Content */}
+      <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-12 sm:gap-14 py-20 text-sm md:text-base">
+        
+        {/* Left Section */}
+        <div>
+          <img className="mb-6 w-44" src={assets.logo} alt="Medical Care Logo" />
+          <p className="md:w-4/5 text-gray-600 leading-relaxed text-2xl">
+            "Book trusted healthcare appointments easily and efficiently. Your health, your schedule, your control."
+          </p>
         </div>
-         {/* ----- copyright Section -----*/}
-            <div>
-               <hr />
-               <p className='py-5 text-sm text-center'>Copyright 2025@ Medical Care - All Right reserved. </p>
-            </div>
 
+        {/* Center Section */}
+        <div>
+          <h3 className="text-2xl font-semibold mb-5 text-blue-900">COMPANY</h3>
+          <ul className="space-y-2">
+            <li className="hover:text-blue-700 transition duration-200 cursor-pointer">Home</li>
+            <li className="hover:text-blue-700 transition duration-200 cursor-pointer">About Us</li>
+            <li className="hover:text-blue-700 transition duration-200 cursor-pointer">Contact Us</li>
+            <li className="hover:text-blue-700 transition duration-200 cursor-pointer">Privacy Policy</li>
+          </ul>
+        </div>
 
+        {/* Right Section */}
+        <div>
+          <h3 className="text-2xl font-semibold mb-5 text-blue-900">GET IN TOUCH</h3>
+          <ul className="space-y-2">
+            <li className="hover:text-blue-700 transition duration-200">+977 9825476625</li>
+            <li className="hover:text-blue-700 transition duration-200">medicalcare77@gmail.com</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <hr className="border-gray-300" />
+
+      {/* Bottom Bar */}
+      <div className="text-center text-lg text-gray-500 py-6">
+        © 2025 <span className="font-semibold text-blue-600">Medical Care</span> — All Rights Reserved.
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
