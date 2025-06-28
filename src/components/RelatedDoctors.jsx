@@ -16,36 +16,41 @@ const RelatedDoctors = ({ speciality, docId }) => {
     }, [doctors, speciality, docId]);
 
     return (
-        <div>
+        <div className='bg-blue-200 px-16 py-3 rounded-3xl'>
             <div className='flex flex-col items-center gap-6 my-16 text-gray-900 md:mx-10'>
                 <h1 className='text-3xl font-bold text-blue-800 tracking-tight border-b-2 border-blue-200 pb-2'>
                     Related Doctors
                 </h1>
 
-
                 <div className='w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 px-4 pt-10'>
-                    {doctors.slice(0, 5).map((item, index) => (
-                        <div
-                            onClick={() => { navigate(`/appointment/${item._id}`); scrollTo(0, 0); }}
-                            className='bg-white border border-blue-200 rounded-2xl shadow-md hover:shadow-2xl cursor-pointer hover:-translate-y-1 transform transition-all duration-300 overflow-hidden hover:border-blue-500'
-                            key={index}
-                        >
+                {doctors.slice(0, 5).map((item, index) => (
+                    <div
+                        onClick={() => navigate(`/appointment/${item._id}`)}
+                        className='bg-white border border-blue-100 rounded-3xl shadow-md hover:shadow-xl cursor-pointer hover:-translate-y-1 transform transition-all duration-300 overflow-hidden'
+                        key={index}
+                    >
+                        {/* Responsive image wrapper */}
+                        <div className='aspect-[4/3] w-full bg-blue-50'>
                             <img
-                                className='w-full h-44 object-cover bg-blue-50'
+                                className='w-full h-full object-contain'
                                 src={item.image}
                                 alt={item.name}
                             />
-                            <div className='p-4'>
-                                <div className='flex items-center gap-2 text-sm text-green-600 mb-1'>
-                                    <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse'></span>
-                                    <span className='font-medium'>Available</span>
-                                </div>
-                                <p className='text-lg font-semibold text-gray-800 truncate'>{item.name}</p>
-                                <p className='text-sm text-blue-600'>{item.speciality}</p>
-                            </div>
                         </div>
-                    ))}
-                </div>
+
+                        {/* Doctor Info */}
+                        <div className='p-4'>
+                            <div className='flex items-center gap-2 text-sm text-green-600 mb-1'>
+                                <span className='w-2 h-2 bg-green-500 rounded-full'></span>
+                                <span className='font-medium'>Available</span>
+                            </div>
+                            <p className='text-lg font-semibold text-gray-800'>{item.name}</p>
+                            <p className='text-sm text-blue-600'>{item.speciality}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+               
 
                 <button
                     onClick={() => { navigate('/doctors'); scroll(0, 0); }}

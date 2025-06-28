@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
+import SearchBar from '../components/SearchBar';
 
 const Doctors = () => {
   const { speciality } = useParams();
@@ -23,7 +24,9 @@ const Doctors = () => {
 
   return (
     <div className='px-4 sm:px-10 py-6'>
+      
       <p className='text-gray-600 text-lg mb-4'>Browse through the doctors specialist.</p>
+      <SearchBar />
       <div className='flex flex-col sm:flex-row items-start gap-5 mt-5'>
         <button
           className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${showFilter ? 'bg-blue-600 text-white' : ''}`}

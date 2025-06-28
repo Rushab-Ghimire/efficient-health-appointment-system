@@ -5,12 +5,12 @@ import { Link } from 'react-router-dom'
 const SpecialityMenu = () => {
   return (
     <div className='flex flex-col items-center gap-6 py-20 text-gray-800 bg-gradient-to-b from-blue-50 to-white' id='speciality'>
-      <h1 className='text-3xl font-extrabold text-blue-600'>Find by Speciality</h1>
-      <p className='sm:w-1/2 text-center text-base text-gray-600 leading-relaxed'>
+      <h1 className='text-6xl font-extrabold text-blue-600'>Find by Speciality</h1>
+      <p className='sm:w-1/2 text-center text-2xl text-gray-600 leading-relaxed'>
         Discover experienced specialists across various fields and easily schedule your appointments.
       </p>
 
-      <div className='flex sm:justify-center gap-6 pt-8 w-full px-4 overflow-x-auto scrollbar-hide'>
+      <div className='flex sm:justify-center gap-8 pt-15 w-full px-25 overflow-x-auto scrollbar-hide'>
         {specialityData.map((item, index) => (
           <Link 
             onClick={() => scroll(0, 0)}

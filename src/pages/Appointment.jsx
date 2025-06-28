@@ -71,12 +71,12 @@ const Appointment = () => {
   }, [docSlots]);
 
   return docInfo && (
-    <div>
+    <div >
       {/* ---------Doctor Details -----------*/}
-      <div className='flex flex-col sm:flex-row gap-4'>
-        <div className='rounded-2xl overflow-hidden shadow-lg bg-white border border-gray-200 justify-center items-center p-2'>
+      <div className='flex flex-col sm:flex-row gap-4 px-2 py-5'>
+        <div className='rounded-2xl overflow-hidden shadow-lg bg-white border border-gray-200 justify-center items-center p-4'>
           <img
-            className='bg-sky-400 w-full px-3 py-2 max-w-[400px] h-auto object-cover rounded-xl'
+            className='bg-sky-600 w-full px-3 py-2 max-w-[400px] h-auto object-cover rounded-xl'
             src={docInfo.image}
             alt={docInfo.name}
           />
@@ -97,8 +97,8 @@ const Appointment = () => {
 
           {/*------- Doctor About --------*/}
           <div>
-            <p className='flex items-center gap-1 text-lg font-medium text-gray-900 mt-3'>About</p>
-            <p className='text-2xl text-gray-500 max-w-[700px] mt-1 px-5 py-5'>{docInfo.about}</p>
+            <p className='flex items-center gap-1  text-2xl font-medium text-gray-900 mt-3'>About:</p>
+            <p className='text-2xl text-gray-500 max-w-[700px] mt-1 px-2 py-4'>{docInfo.about}</p>
           </div>
 
           <p className='text-black font-medium mt-4 text-2xl'>
@@ -109,7 +109,7 @@ const Appointment = () => {
 
       {/* -------- Booking slots ------ */}
       <div className='sm:ml-72 sm:pl-4 mt-4 font-medium text-gray-700'>
-        <p className='text-2xl font-bold text-blue-700 border-b-2 border-blue-200 inline-block pb-1'>
+        <p className='text-3xl font-bold text-blue-700 border-b-2 border-blue-200 inline-block pb-1'>
           Booking Slots
         </p>
 
@@ -118,7 +118,7 @@ const Appointment = () => {
             docSlots.length && docSlots.map((item, index) => (
               <div
                 onClick={() => setSlotIndex(index)}
-                className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${slotIndex === index ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                className={`text-center text-2xl py-6 min-w-19 rounded-full cursor-pointer ${slotIndex === index ? 'bg-blue-400 text-white' : 'bg-gray-100 text-gray-800'
                   }`}
                 key={index}
               >
@@ -132,7 +132,7 @@ const Appointment = () => {
         <div className='flex items-center gap-3 w-full overflow-x-scroll mt-4'>
           {docSlots.length && docSlots[slotIndex].map((item, index) => (
             <p onClick={() => setSlotTime(item.time)}
-              className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-blue-400 text-white' : 'text-gray-400 border border-gray-300'}`}
+              className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-cyan-400 text-black' : 'text-gray-800 border border-black'}`}
               key={index}
             >
               {item.time.toLowerCase()}
@@ -141,7 +141,7 @@ const Appointment = () => {
 
 
         </div>
-        <button className='bg-blue-600 text-white text-sm font-light px-14 py-3 rounded-full my-6'>Book an Appointment</button>
+        <button className='bg-blue-600 shadow-sm text-2xl text-white px-9 py-6 rounded-full my-6'>Book an Appointment</button>
       </div>
       {/* Listing Related Doctors */}
       <RelatedDoctors docId={docId} speciality={docInfo.speciality} />

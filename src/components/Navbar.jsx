@@ -1,76 +1,172 @@
 import React, { useState } from 'react';
-import { assets } from '../assets/assets';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
+import { assets } from '../assets/assets';
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    const [showMenu, setShowMenu] = useState(false);
-    const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [token, setToken] = useState(true); 
 
-    const handleBookClick = () => {
-        setShowProfileMenu(true);
-        navigate('#speciality');
-    };
+  const handleBookClick = () => navigate('/login');
+  const handleLogout = () => {
+    alert('Logout logic here');
+    setToken(false);
+  };
 
-    return (
-        <div className='bg-sky-100 flex items-center justify-between text-sm py-7 mb-8 border-b border-b-gray-300 px-4 md:px-10 shadow-sm'>
-            <img onClick={() => navigate('/')} className='w-58 hover:scale-105 transition-transform duration-400 cursor-pointer drop-shadow-lg' src={assets.logo} alt="" />
-            
-            <ul className='hidden md:flex items-start gap-6 font-medium'>
-                <NavLink to='/'>
-                    <li className='py-1 text-2xl'>HOSPITAL OVERVIEW</li>
-                    <hr className='border-none outline-none h-1 bg-blue-500 w-3/5 m-auto hidden' />
-                </NavLink>
-                <NavLink to='/doctors'>
-                    <li className='py-1 text-2xl'>FIND DOCTORS</li>
-                    <hr className='border-none outline-none h-1 bg-blue-500 w-3/5 m-auto hidden' />
-                </NavLink>
-                <NavLink to='/my-appointments'>
-                    <li className='py-1 text-2xl'>MY APPOINTMENTS</li>
-                    <hr className='border-none outline-none h-1 bg-blue-500 w-3/5 m-auto hidden' />
-                </NavLink>
+  const dropdowns = {
+    overview: [
+      { name: 'About Us', link: '/about' },
+      { name: 'Contact Us', link: '/contact' },
+    ],
+    services: [
+      { name: 'My Profile', link: '/my-profile' },
+      { name: 'My Appointments', link: '/my-appointments' },
+      { name: 'Maps', link: '/maps' },
+    ],
+  };
 
-                <button
-                    onClick={handleBookClick}
-                    className="flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold px-7 py-5 rounded-full text-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
-                >
-                    Book Appointment Now
-                    <img className="w-8 animate-bounce" src={assets.arrow_button} alt="Arrow" />
-                </button>
-            </ul>
+  return (
+    <div className="bg-gradient-to-r from-[#e0f7fa] via-[#80deea] to-[#26c6da] shadow-md  top-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center h-[100px] md:h-[130px] transition-all duration-300">
 
-            {/* Show profile dropdown only when Book is clicked */}
-            {showProfileMenu && (
-                <div className='flex items-center gap-4'>
-                    <div className='flex items-center gap-2 cursor-pointer group relative'>
-                        <img className='w-12 rounded-full' src={assets.Profile_pic} alt=" " />
-                        <img className='w-4' src={assets.icon} alt=" " />
-                        <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
-                            <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
-                                <p onClick={() => navigate('my-profile')} className='hover:text-black cursor-pointer text-2xl'>My Profile</p>
-                                <p onClick={() => setShowProfileMenu(false)} className='hover:text-black cursor-pointer text-2xl'>Logout</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+      {/* Logo */}
+      <img
+        onClick={() => navigate('/')}
+        src={assets.logo}
+        alt="Logo"
+        className="w-44 cursor-pointer hover:scale-105 transition-transform"
+      />
 
-            {/* Mobile Menu */}
-            <img onClick={() => setShowMenu(true)} className='w-6 md:hidden' src={assets.menu_icon} alt="" />
-            <div className={`${showMenu ? 'fixed w-full' : 'h-0 w-0'} md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}>
-                <div className='flex items-center justify-between px-5 py-6'>
-                    <img className='w-36' src={assets.logo} alt="" />
-                    <img className='w-7' onClick={() => setShowMenu(false)} src={assets.cross_icon} alt="" />
-                </div>
-                <ul className='flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium'>
-                    <NavLink onClick={() => setShowMenu(false)} to='/'><p className='px-4 py-2 rounded inline-block'>HOSPITAL OVERVIEW</p></NavLink>
-                    <NavLink onClick={() => setShowMenu(false)} to='/doctors'><p className='px-4 py-2 rounded inline-block'>FIND DOCTORS</p></NavLink>
-                    <NavLink onClick={() => setShowMenu(false)} to='/about'><p className='px-4 py-2 rounded inline-block'>ABOUT</p></NavLink>
-                    <NavLink onClick={() => setShowMenu(false)} to='/contact'><p className='px-4 py-2 rounded inline-block'>CONTACT</p></NavLink>
-                </ul>
+      {/* Desktop Navigation */}
+      <ul className="hidden md:flex items-center gap-6 text-gray-800 font-medium text-lg">
+        {token && (
+          <li
+            className="relative group"
+            onMouseEnter={() => setActiveDropdown('overview')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <div className="flex items-center gap-1 cursor-pointer text-2xl">
+              HOSPITAL OVERVIEW
+              <ChevronDown size={18} />
             </div>
+            {activeDropdown === 'overview' && (
+              <div className="absolute top-full mt-2 bg-white rounded-md shadow-lg py-2 w-60 z-50">
+                {dropdowns.overview.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.link}
+                    className="block px-4 py-2 hover:bg-blue-100 text-gray-800 transition"
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </li>
+        )}
+
+        <NavLink to="/doctors" className="hover:underline text-2xl">
+          FIND DOCTORS
+        </NavLink>
+
+        {token && (
+          <li
+            className="relative group"
+            onMouseEnter={() => setActiveDropdown('services')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <div className="flex items-center gap-1 cursor-pointer text-2xl">
+              OUR SERVICES
+              <ChevronDown size={18} />
+            </div>
+            {activeDropdown === 'services' && (
+              <div className="absolute top-full mt-2 bg-white rounded-md shadow-lg py-2 w-60 z-50">
+                {dropdowns.services.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.link}
+                    className="block px-4 py-2 hover:bg-blue-100 text-gray-800 transition"
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </li>
+        )}
+
+        {/* Buttons */}
+        <div className="flex gap-3 items-center">
+          <button
+            onClick={handleBookClick}
+            className="bg-white hover:bg-blue-50 text-black font-medium px-5 py-2 rounded-full shadow-md transition"
+          >
+            Book Appointment
+          </button>
+          {token && (
+            <button
+              onClick={handleLogout}
+              className="bg-red-100 hover:bg-red-200 text-red-700 font-medium px-4 py-2 rounded-full shadow-sm transition"
+            >
+              Logout
+            </button>
+          )}
         </div>
-    );
+      </ul>
+
+      {/* Mobile Menu Button */}
+      <img
+        onClick={() => setShowMenu(true)}
+        src={assets.menu_icon}
+        alt="Menu"
+        className="w-7 md:hidden cursor-pointer"
+      />
+
+      {/* Mobile Menu */}
+      {showMenu && (
+        <div className="fixed top-0 right-0 w-full h-full bg-white z-30 px-6 py-4 md:hidden overflow-auto">
+          <div className="flex justify-between items-center mb-6">
+            <img src={assets.logo} alt="Logo" className="w-36" />
+            <img
+              src={assets.cross_icon}
+              alt="Close"
+              className="w-6 cursor-pointer"
+              onClick={() => setShowMenu(false)}
+            />
+          </div>
+          <ul className="flex flex-col gap-4 text-gray-800 text-base font-semibold">
+            {token && (
+              <>
+                <NavLink to="/" onClick={() => setShowMenu(false)}>HOSPITAL OVERVIEW</NavLink>
+                {dropdowns.overview.map(d => (
+                  <NavLink key={d.name} to={d.link} onClick={() => setShowMenu(false)}>{d.name}</NavLink>
+                ))}
+              </>
+            )}
+            <NavLink to="/doctors" onClick={() => setShowMenu(false)}>Find Doctors</NavLink>
+            {token && dropdowns.services.map(d => (
+              <NavLink key={d.name} to={d.link} onClick={() => setShowMenu(false)}>{d.name}</NavLink>
+            ))}
+            <button
+              onClick={handleBookClick}
+              className="bg-blue-200 px-4 py-2 rounded-full mt-4"
+            >
+              Book Appointment
+            </button>
+            {token && (
+              <button
+                onClick={handleLogout}
+                className="bg-red-100 text-red-700 px-4 py-2 rounded-full mt-2"
+              >
+                Logout
+              </button>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Navbar;

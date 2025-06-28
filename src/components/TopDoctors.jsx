@@ -10,6 +10,7 @@ const TopDoctors = () => {
 
     return (
         <div className='flex flex-col items-center gap-6 my-16 text-gray-900 md:mx-10'>
+            
             <h1 className='text-5xl font-extrabold text-blue-600 tracking-tight'>Meet Our Top Doctors</h1>
             <p className='sm:w-2/3 text-center text-2xl text-gray-600 leading-relaxed'>
                 Discover a team of compassionate and highly skilled doctors committed to your health and well-being.
