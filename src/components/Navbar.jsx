@@ -14,7 +14,7 @@ const Navbar = () => {
     alert('Logout logic here');
     setToken(false);
   };
-
+  {/* Dropdown tei hospital overview and our services ko lagi */}
   const dropdowns = {
     overview: [
       { name: 'About Us', link: '/about' },
@@ -27,10 +27,10 @@ const Navbar = () => {
     ],
   };
 
-  return (
+  return ( 
     <div className="bg-gradient-to-r from-[#e0f7fa] via-[#80deea] to-[#26c6da] shadow-md  top-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center h-[100px] md:h-[130px] transition-all duration-300">
 
-      {/* Logo */}
+      {/* brand ko logo  */}
       <img
         onClick={() => navigate('/')}
         src={assets.logo}
@@ -38,12 +38,12 @@ const Navbar = () => {
         className="w-44 cursor-pointer hover:scale-105 transition-transform"
       />
 
-      {/* Desktop Navigation */}
+      {/* Desktop ko lagi  */}
       <ul className="hidden md:flex items-center gap-6 text-gray-800 font-medium text-lg">
         {token && (
           <li
             className="relative group"
-            onMouseEnter={() => setActiveDropdown('overview')}
+            onMouseEnter={() => setActiveDropdown('overview')}   
             onMouseLeave={() => setActiveDropdown(null)}
           >
             <div className="flex items-center gap-1 cursor-pointer text-2xl">
@@ -51,7 +51,7 @@ const Navbar = () => {
               <ChevronDown size={18} />
             </div>
             {activeDropdown === 'overview' && (
-              <div className="absolute top-full mt-2 bg-white rounded-md shadow-lg py-2 w-60 z-50">
+              <div className="absolute top-full bg-white rounded-md shadow-lg py-2 w-60 z-50">
                 {dropdowns.overview.map((item) => (
                   <NavLink
                     key={item.name}
@@ -81,7 +81,7 @@ const Navbar = () => {
               <ChevronDown size={18} />
             </div>
             {activeDropdown === 'services' && (
-              <div className="absolute top-full mt-2 bg-white rounded-md shadow-lg py-2 w-60 z-50">
+              <div className="absolute top-full  bg-white rounded-md shadow-lg py-2 w-60 z-50">
                 {dropdowns.services.map((item) => (
                   <NavLink
                     key={item.name}
