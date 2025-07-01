@@ -8,7 +8,7 @@ const About = () => {
 
       {/* // heading part jasle "About Us" dekhaauxa */}
       <div className='text-center text-3xl md:text-4xl font-semibold text-gray-600 mb-8'>
-        <p>ABOUT <span className='text-blue-600'>US</span></p>
+        <p>ABOUT <span className='text-gray-700'>US</span></p>
       </div>
 
       {/* // image ra description ko section, responsive banaeko */}
@@ -22,7 +22,7 @@ const About = () => {
 
           {/* // welcome message */}
           <p className='text-3xl font-medium text-gray-800'>
-            Welcome to our <span className='text-blue-600 font-semibold'>Smart Health Appointment System</span>!
+            Welcome to our <span className='text-gray-700 font-semibold'>Smart Health Appointment System</span>!
           </p>
 
           {/* // features ko overview */}
@@ -43,7 +43,7 @@ const About = () => {
 
       {/* // choose us heading part */}
       <div className='text-lg md:text-2xl font-semibold my-8 text-center text-gray-700'>
-        <p>WHY <span className='text-blue-600'>Choose Us</span></p>
+        <p>WHY <span className='text-gray-700'>Choose Us</span></p>
       </div>
 
       {/* // 3 reasons dekhayeko section - efficiency, convenience, personalization */}
@@ -51,19 +51,19 @@ const About = () => {
 
         {/* // efficiency card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-700 text-2xl'>EFFICIENCY</b>
+          <b className='text-blue-500 text-2xl'>EFFICIENCY</b>
           <p className='text-gray-600 text-lg'>Streamlined appointment scheduling that fits into your busy lifestyle.</p>
         </div>
 
         {/* // convenience card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-700 text-2xl'>CONVENIENCE</b>
+          <b className='text-blue-500 text-2xl'>CONVENIENCE</b>
           <p className='text-gray-600 text-lg'>Access to a network of trusted healthcare professionals in your area.</p>
         </div>
 
         {/* // personalization card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-700 text-2xl'>PERSONALIZATION</b>
+          <b className='text-blue-500 text-2xl'>PERSONALIZATION</b>
           <p className='text-gray-600 text-lg'>Tailored recommendations and reminders to help you stay on top of your health.</p>
         </div>
       </div>
