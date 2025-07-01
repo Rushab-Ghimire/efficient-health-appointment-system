@@ -1,11 +1,13 @@
 # core/views.py
-
+from django.contrib.auth import authenticate
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
 from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -69,3 +71,27 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         # Using update_fields is more efficient as it only updates one column in the DB.
         appointment.save(update_fields=['is_verified'])
         return Response({'status': 'Appointment verified successfully.'})
+    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny]) # Allow anyone to access this view
+def custom_login_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    if not username or not password:
+        return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Try to authenticate the user
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        # Authentication successful
+        if not user.is_active:
+            return Response({'error': 'This user account is inactive.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+    else:
+        # Authentication failed
+        return Response({'error': 'Invalid credentials provided.'}, status=status.HTTP_401_UNAUTHORIZED)

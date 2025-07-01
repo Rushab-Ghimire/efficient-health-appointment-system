@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'core',
     'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -127,3 +128,17 @@ AUTH_USER_MODEL = 'core.User'
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+
+# ========================================================================
+# DJANGO REST FRAMEWORK SETTINGS
+# ========================================================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', # This enables token-based auth
+        'rest_framework.authentication.SessionAuthentication', # This keeps the browsable API working
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', # Sets a default policy for all views
+    ]
+}
