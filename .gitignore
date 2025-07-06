@@ -1,24 +1,52 @@
-# .gitignore
+# =============================================================================
+# General / Environment Variables
+#
+# Ignore environment files in any directory. DO NOT commit secrets.
+# =============================================================================
+**/.env
+.env.*
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.db
-.env
+# =============================================================================
+# Backend - Python / Django
+# =============================================================================
+# Virtual Environment - THIS IS VERY IMPORTANT
+backend/venv/
 
-# Django
+# Django static and media files
 backend/staticfiles/
 backend/media/
 
-# Node
-frontend/node_modules/
-frontend/dist/
-frontend/.env
+# Python artifacts
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
+# Database files
+*.sqlite3
+
+# =============================================================================
+# Frontend - Node.js / React / Vite
+# =============================================================================
+# Dependencies
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================================================
+# Editor & OS Specific
+# =============================================================================
 # VS Code
 .vscode/
 
-# OS files
+# macOS
 .DS_Store
+
+# Windows
 Thumbs.db
