@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { assets } from '../assets/assets';
+ 
 
 const Navbar = () => {
   const navigate = useNavigate();

@@ -18,6 +18,7 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=100)
     available_from = models.TimeField(default=timezone.now)  
     available_to = models.TimeField(default=timezone.now)
+    image = models.ImageField(upload_to='doctors/', null=True, blank=True)
 
     def __str__(self):
         return f"Dr. {self.user.get_full_name()}"

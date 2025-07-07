@@ -12,8 +12,18 @@ from rest_framework.permissions import AllowAny
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # For production, you would add permissions here, e.g., IsAdminUser
-    # permission_classes = [permissions.IsAdminUser]
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'create':
+            # Allow any user (authenticated or not) to create a new user (sign up)
+            permission_classes = [permissions.AllowAny]
+        else:
+            # For all other actions (list, retrieve, update, delete),
+            # require the user to be an admin.
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -21,7 +31,7 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
-    permission_classes = [permissions.IsAuthenticated] # Anyone logged in can see doctors
+    permission_classes = [permissions.AllowAny] # Anyone logged in can see doctors
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer

@@ -39,7 +39,8 @@ class DoctorSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:
         model = Doctor
-        fields = ('id', 'user', 'specialization', 'available_from', 'available_to')
+        fields = ('id', 'user', 'specialization', 'available_from', 'available_to', 'image')
+        
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = UserSerializer(read_only=True)
