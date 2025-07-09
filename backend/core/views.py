@@ -5,86 +5,182 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
-from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer
+from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer # Import the list serializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions that this view requires.
         """
         if self.action == 'create':
-            # Allow any user (authenticated or not) to create a new user (sign up)
             permission_classes = [permissions.AllowAny]
         else:
-            # For all other actions (list, retrieve, update, delete),
-            # require the user to be an admin.
             permission_classes = [permissions.IsAdminUser]
         return [permission() for permission in permission_classes]
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    A read-only viewset for listing doctors. This is secure by default.
+    A read-only viewset for listing doctors. Anyone can see doctors.
     """
-    queryset = Doctor.objects.all()
+    queryset = Doctor.objects.filter(is_active=True) # Good practice: only show active doctors
     serializer_class = DoctorSerializer
-    permission_classes = [permissions.AllowAny] # Anyone logged in can see doctors
+    permission_classes = [permissions.AllowAny]
 
 class AppointmentViewSet(viewsets.ModelViewSet):
-    serializer_class = AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    # This serializer is used by default for retrieve, create, update
+    serializer_class = AppointmentSerializer
 
     def get_queryset(self):
         """
         Filters appointments to ensure users only see their own data.
         """
         user = self.request.user
-        if user.is_staff: # Admins see everything
+        if user.is_staff:
             return Appointment.objects.all()
         if user.role == 'doctor':
             return Appointment.objects.filter(doctor__user=user)
         if user.role == 'patient':
             return Appointment.objects.filter(patient=user)
-        return Appointment.objects.none() # Should not be reached
+        return Appointment.objects.none()
+
+    def get_serializer_class(self):
+        """
+        Use a different serializer for the 'list' action.
+        """
+        if self.action == 'list':
+            return AppointmentListSerializer # Use the lightweight serializer for lists
+        return super().get_serializer_class() # Use the default for all other actions
 
     def perform_create(self, serializer):
         """
         Automatically sets the logged-in user as the patient for a new appointment.
         """
-        # Ensure only users with the 'patient' role can create an appointment.
         if self.request.user.role != 'patient':
             raise PermissionDenied("Only patients are allowed to book appointments.")
-            
-        # This is the standard, correct way to inject the user.
-        # It passes the user object directly to the serializer's create/update method.
         serializer.save(patient=self.request.user)
         
-    @action(detail=True, methods=['post'])
-    def verify(self, request, pk=None):
+    @action(detail=True, methods=['post'], url_path='complete')
+    def complete_appointment(self, request, pk=None):
         """
-        An admin/doctor action to mark an appointment as verified.
+        A custom action for a doctor or admin to mark an appointment as 'completed'.
+        Accessible via: POST /api/appointments/{id}/complete/
+        """
+        appointment = self.get_object() # This gets the specific appointment by its ID
+
+        # Permission Check: Who can do this?
+        is_the_correct_doctor = (request.user.role == 'doctor' and appointment.doctor.user == request.user)
+        is_an_admin = request.user.is_staff
+
+        if not (is_the_correct_doctor or is_an_admin):
+            return Response(
+                {'error': 'You do not have permission to complete this appointment.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Logic Check: Can this appointment be completed?
+        if appointment.status != 'scheduled':
+            return Response(
+                {'error': f"This appointment cannot be completed as its status is already '{appointment.get_status_display()}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # The Action: Update the status
+        appointment.status = 'completed'
+        appointment.save(update_fields=['status']) # Efficiently save only the 'status' field
+
+        # You could trigger another signal/notification here, e.g., "Send patient feedback survey"
+        
+        return Response(
+            {'status': 'Appointment marked as completed successfully.'},
+            status=status.HTTP_200_OK
+        )
+    
+
+    # The old 'verify' method has been removed. This is the only custom action left.
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel_appointment(self, request, pk=None):
+        """
+        A custom action for a patient to cancel their own appointment.
+        Accessible via: POST /api/appointments/{id}/cancel/
         """
         appointment = self.get_object()
+
+        # Permission Check: Only the patient who booked it can cancel.
+        # (Admins can also cancel, but they can do it directly via PUT/PATCH requests)
+        if appointment.patient != request.user:
+            return Response(
+                {'error': 'You do not have permission to cancel this appointment.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
         
-        # A more secure check: only admins or the specific doctor of this appointment can verify.
-        is_correct_doctor = (request.user.role == 'doctor' and appointment.doctor.user == request.user)
-        if not (request.user.is_staff or is_correct_doctor):
+        # Logic Check: Use the handy model property we created!
+        if not appointment.is_cancellable:
+            return Response(
+                {'error': 'This appointment can no longer be cancelled (it may be in the past or already completed).'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # The Action: Update the status
+        appointment.status = 'cancelled'
+        appointment.save(update_fields=['status'])
+
+        # You could trigger a notification here to inform the doctor that their slot has opened up.
+
+        return Response(
+            {'status': 'Appointment cancelled successfully.'},
+            status=status.HTTP_200_OK
+        )
+    
+    # core/views.py -> inside AppointmentViewSet
+
+    @action(detail=True, methods=['post'], url_path='no-show')
+    def mark_as_no_show(self, request, pk=None):
+        """
+        A custom action for a doctor or admin to mark an appointment as a 'No-Show'.
+        Accessible via: POST /api/appointments/{id}/no-show/
+        """
+        appointment = self.get_object()
+
+        # Permission Check (same as completing an appointment)
+        is_the_correct_doctor = (request.user.role == 'doctor' and appointment.doctor.user == request.user)
+        is_an_admin = request.user.is_staff
+
+        if not (is_the_correct_doctor or is_an_admin):
+            return Response(
+                {'error': 'You do not have permission to modify this appointment.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Logic Check: Can only mark past, scheduled appointments as no-shows.
+        if not appointment.is_past:
              return Response(
-                 {'error': 'You do not have permission to verify this appointment.'}, 
-                 status=status.HTTP_403_FORBIDDEN
-             )
-        
-        appointment.is_verified = True
-        # Using update_fields is more efficient as it only updates one column in the DB.
-        appointment.save(update_fields=['is_verified'])
-        return Response({'status': 'Appointment verified successfully.'})
-    
-    
+                {'error': 'Cannot mark an upcoming appointment as a no-show.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if appointment.status != 'scheduled':
+            return Response(
+                {'error': f"Cannot mark this appointment as its status is '{appointment.get_status_display()}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # The Action
+        appointment.status = 'no_show'
+        appointment.save(update_fields=['status'])
+
+        return Response(
+            {'status': 'Appointment marked as No-Show.'},
+            status=status.HTTP_200_OK
+        )
+
 @api_view(['POST'])
-@permission_classes([AllowAny]) # Allow anyone to access this view
+@permission_classes([AllowAny])
 def custom_login_view(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -92,16 +188,20 @@ def custom_login_view(request):
     if not username or not password:
         return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Try to authenticate the user
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        # Authentication successful
         if not user.is_active:
             return Response({'error': 'This user account is inactive.'}, status=status.HTTP_403_FORBIDDEN)
         
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        token, _ = Token.objects.get_or_create(user=user)
+        
+        # Include user details in the login response
+        user_data = UserSerializer(user).data
+        
+        return Response({
+            'token': token.key,
+            'user': user_data
+        }, status=status.HTTP_200_OK)
     else:
-        # Authentication failed
         return Response({'error': 'Invalid credentials provided.'}, status=status.HTTP_401_UNAUTHORIZED)

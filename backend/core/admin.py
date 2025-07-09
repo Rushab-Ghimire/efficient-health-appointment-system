@@ -39,10 +39,10 @@ class DoctorAdmin(admin.ModelAdmin):
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'patient', 'doctor', 'date', 'time', 'is_verified')
-    list_filter = ('is_verified', 'date', 'doctor')
+    list_display = ('id', 'patient', 'doctor', 'date', 'time', 'status')
+    list_filter = ('status', 'date', 'doctor')
     search_fields = ('patient__username', 'doctor__user__username')
-    fields = ('patient', 'doctor', 'date', 'time', 'is_verified', 'qr_code_preview')
+    fields = ('patient', 'doctor', 'date', 'time', 'status', 'qr_code_preview')
     readonly_fields = ('qr_code_preview',)
 
     def qr_code_preview(self, obj):
