@@ -64,23 +64,34 @@ const Login = () => {
         )}
 
         <div className='w-full'>
-          <p>Username</p>
-          <input name="username" onChange={handleChange} value={formData.username} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
+          <p>First Name</p>
+          <input name="Firstname" onChange={handleChange} value={formData.Lastname} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
         </div>
+         <div className='w-full'>
+          <p>Last Name</p>
+          <input name="Lastname" onChange={handleChange} value={formData.Lastname} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
+        </div>
+
+       
 
         <div className='w-full'>
           <p>Password</p>
           <input name="password" onChange={handleChange} value={formData.password} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='password' />
         </div>
 
-        <button type="submit" className='bg-blue-600 text-white w-full py-2 rounded-md text-base'>
+         <div className='w-full'>
+          <p>Address</p>
+          <input name="Address" onChange={handleChange} value={formData.Address} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
+        </div>
+
+        <button type="submit" className='bg-green-600 text-white w-full py-2 rounded-md text-base'>
           {state}
         </button>
 
         {state === 'Login' ? (
-          <p>Create a new account? <span onClick={() => setState('Sign Up')} className='text-blue-600 underline cursor-pointer'>Click here</span></p>
+          <p>Create a new account? <span onClick={() => setState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
         ) : (
-          <p>Already have an account? <span onClick={() => setState('Login')} className='text-blue-600 underline cursor-pointer'>Login here</span></p>
+          <p>Already have an account? <span onClick={() => setState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
         )}
       </div>
     </form>

@@ -4,7 +4,7 @@ import { AppContext } from '../context/AppContext'
 const MyAppointments = () => {
   const { doctors } = useContext(AppContext)
   return (
-    <div>
+    <div className='px-4 sm:px-10 py-8 bg-gradient-to-b from-white via-indigo-50 to-blue-100 min-h-screen'>
 
       <p className='pb-3 mt-12 font-medium text-zinc-700 border-b'>My appointments</p>
       <div>
@@ -24,8 +24,8 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className='flex flex-col gap-2 justify-end'>
-              <button className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-blue-500 hover:text-white transition-all duration-300'>Pay online</button>
-              <button className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-600 hover:text-white transition-all duration-300'>Cancel appointment</button>
+              <button className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-cyan-500 hover:text-white transition-all duration-300'>Pay online</button>
+              <button className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-500 hover:text-white transition-all duration-300'>Cancel appointment</button>
             </div>
           </div>
         ))

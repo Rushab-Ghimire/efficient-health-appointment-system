@@ -12,14 +12,14 @@ const Banner = () => {
       <div className="flex-1 py-10 sm:py-14 md:py-20 lg:py-24 text-black z-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight drop-shadow-md">
           Book Your Appointment<br />
-          With <span className="text-blue-600">100+ Trusted Doctors</span>
+          With <span className="text-green-700">100+ Trusted Doctors</span>
         </h1>
-        <p className="mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-black">
+        <p className="mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-slate-900">
           Get the best healthcare services with just one click.
         </p>
         <button
           onClick={() => { navigate('/login'); scrollTo(0, 0); }}
-          className="mt-8 px-8 py-3 sm:px-10 sm:py-4 bg-white text-black font-semibold text-2xl rounded-full hover:scale-105 hover:shadow-lg transition-all duration-300"
+          className="mt-8 px-8 py-3 sm:px-10 sm:py-4 bg-green-400 text-white font-semibold text-2xl rounded-full hover:scale-105 hover:shadow-lg transition-all duration-300"
         >
           Create Account
         </button>

@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom'
 const SpecialityMenu = () => {
   return (
     <div className='flex flex-col items-center gap-6 py-20 text-gray-800 bg-gradient-to-b from-blue-50 to-white' id='speciality'>
-      <h1 className='text-6xl font-extrabold text-blue-600'>Find by Speciality</h1>
-      <p className='sm:w-1/2 text-center text-2xl text-gray-600 leading-relaxed'>
+      <h1 className='text-6xl font-extrabold text-cyan-800'>Find by Speciality</h1>
+      <p className='sm:w-1/2 text-center text-2xl text-gray-900 leading-relaxed'>
         Discover experienced specialists across various fields and easily schedule your appointments.
       </p>
 

@@ -11,8 +11,8 @@ const TopDoctors = () => {
     return (
         <div className='flex flex-col items-center gap-6 my-16 text-gray-900 md:mx-10'>
             
-            <h1 className='text-5xl font-extrabold text-blue-600 tracking-tight'>Meet Our Top Doctors</h1>
-            <p className='sm:w-2/3 text-center text-2xl text-gray-600 leading-relaxed'>
+            <h1 className='text-5xl font-extrabold text-cyan-800 tracking-tight'>Meet Our Top Doctors</h1>
+            <p className='sm:w-2/3 text-center text-2xl text-gray-900 leading-relaxed'>
                 Discover a team of compassionate and highly skilled doctors committed to your health and well-being.
                 Browse profiles and book your appointment instantly with just a click.
             </p>
@@ -49,7 +49,7 @@ const TopDoctors = () => {
 
             <button
                 onClick={() => { navigate('/doctors'); scroll(0, 0) }}
-                className='bg-blue-600 text-white font-semibold px-10 py-3 rounded-full mt-10 hover:bg-blue-700 hover:shadow-lg transition duration-300'
+                className='bg-green-400 text-white font-semibold px-10 py-3 rounded-full mt-10 hover:bg-blue-700 hover:shadow-lg transition duration-300'
             >
                 View All Doctors
             </button>

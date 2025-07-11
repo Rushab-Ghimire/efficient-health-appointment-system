@@ -3,7 +3,7 @@ import { assets } from '../assets/assets'
 
 const Header = () => {
     return (
-        <div className="flex flex-col md:flex-row items-center rounded-b-4xl bg-gradient-to-r from-cyan-300 via-blue-200 to-blue-200  px-6 md:px-16 py-16 md:py-24 gap-12 md:gap-10 shadow-2xl overflow-hidden transition-all duration-500">
+        <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-cyan-300 via-cyan-100 to-blue-100 px-6 md:px-16 py-20 md:py-24 gap-10 rounded-b-3xl overflow-hidden transition-all duration-500">
             
             {/* ----- Left Side ------ */}
             <div className="md:w-1/2 flex flex-col items-start justify-center gap-6 text-black">
@@ -25,7 +25,7 @@ const Header = () => {
 
                 <a
                     href="#speciality"
-                    className="flex items-center gap-2 bg-white text-black font-semibold px-15 py-5 rounded-full text-2xl shadow-md hover:scale-105 hover:bg-gray-100 transition duration-300"
+                    className="flex items-center gap-2 bg-green-600 text-white font-semibold px-13 py-5 rounded-full text-2xl shadow-md hover:scale-105 hover:bg-gray-100 transition duration-300"
                 >
                     Book Appointment
                     <img className="w-5 animate-bounce" src={assets.arrow_button} alt="Arrow" />

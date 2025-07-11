@@ -27,16 +27,16 @@ const About = () => {
 
           {/* // features ko overview */}
           <p className='text-lg'>
-            Our system le online appointment, hospital navigation ra SMS reminder jasto helpful features dincha. Patient ko time bachcha ra process smooth huncha.
+          "Our system provides helpful features like online appointment booking, hospital navigation, and SMS reminders. This saves patients time and makes the entire process smoother."
           </p>
           <p>
-            Technology ma React.js frontend, Django backend, ani PostgreSQL ra Sparrow SMS API use gareko cha to make everything reliable and efficient.
+            "We use React.js for the frontend, Django for the backend, and integrate PostgreSQL along with the Sparrow SMS API to ensure the system is both reliable and efficient."
           </p>
           {/* 
           // vision title */}
           <b className='text-2xl text-gray-800 mt-4'>Our Vision</b>
           <p className='text-lg'>
-            Hamro vision chai Nepal ma digital healthcare access improve garnu ho. We want to connect patients and hospitals in a fast and easy way using technology.
+            "Our vision is to improve digital healthcare access in Nepal. We aim to connect patients and hospitals quickly and easily through the power of technology."
           </p>
         </div>
       </div>
@@ -51,19 +51,19 @@ const About = () => {
 
         {/* // efficiency card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-500 text-2xl'>EFFICIENCY</b>
+          <b className='text-cyan-600 text-2xl'>EFFICIENCY</b>
           <p className='text-gray-600 text-lg'>Streamlined appointment scheduling that fits into your busy lifestyle.</p>
         </div>
 
         {/* // convenience card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-500 text-2xl'>CONVENIENCE</b>
+          <b className='text-cyan-600 text-2xl'>CONVENIENCE</b>
           <p className='text-gray-600 text-lg'>Access to a network of trusted healthcare professionals in your area.</p>
         </div>
 
         {/* // personalization card */}
         <div className='bg-white border hover:shadow-xl rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-4 text-[15px] transition-all duration-300'>
-          <b className='text-blue-500 text-2xl'>PERSONALIZATION</b>
+          <b className='text-cyan-600 text-2xl'>PERSONALIZATION</b>
           <p className='text-gray-600 text-lg'>Tailored recommendations and reminders to help you stay on top of your health.</p>
         </div>
       </div>

@@ -74,7 +74,7 @@ const Doctors = () => {
                                         <p className='text-lg font-semibold text-gray-800 truncate'>
                                             Dr. {doctor.user.first_name} {doctor.user.last_name}
                                         </p>
-                                        <p className='text-sm text-indigo-600'>{doctor.specialization}</p>
+                                        <p className='text-sm text-black'>{doctor.specialization}</p>
                                     </div>
                                 </div>
                             );

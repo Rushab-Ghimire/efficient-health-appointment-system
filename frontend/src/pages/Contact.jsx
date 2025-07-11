@@ -36,10 +36,10 @@ const Contact = () => {
       {/* Image and Office Info */}
       <div className='w-full flex flex-col md:flex-row items-center gap-1 px-65 py-7'>
 
-        <img className='w-full md:max-w-[360px] bg-cyan-300 ' src={assets.about_image} alt="Contact" />
+        <img className='w-full md:max-w-[360px] bg-cyan-500 ' src={assets.about_image} alt="Contact" />
 
-        <div className='flex flex-col justify-center px-6 md:px-20 py-6 gap-4 bg-blue-200 rounded-2xl shadow-lg text-gray-800 '>
-          <p className='font-bold  text-3xl md:text-3xl '>OUR OFFICE</p>
+        <div className='flex flex-col justify-center px-6 md:px-20 py-6 gap-4 bg-cyan-300 rounded-3xl shadow-lg text-gray-800 '>
+          <p className='font-bold  text-3xl md:text-3xl text-black '>OUR OFFICE</p>
 
           <p className='text-lg md:text-xl leading-relaxed'>
             5207 BPKHIS <br /> DHARAN, SUNSARI
@@ -50,24 +50,24 @@ const Contact = () => {
             Email: medicalcare77@gmail.com
           </p>
 
-          <p className='font-semibold text-2xl mt-2'>Careers at Medical Care</p>
+          <p className='font-semibold text-2xl mt-2 text-black'>Careers at Medical Care</p>
           <p className='text-base md:text-lg'>Learn more about our teams and job openings.</p>
 
-          <button className='border rounded-3xl border-black bg-white text-black px-6 py-3 text-lg hover:bg-black hover:text-white transition-all duration-500 w-fit'>
+          <button className='border rounded-3xl border-black bg-green-400 text-white px-6 py-3 text-lg hover:bg-black hover:text-white transition-all duration-500 w-fit'>
             Explore Jobs
           </button>
         </div>
       </div>
 
       {/* Contact Form */}
-      <div className='bg-cyan-100 rounded-3xl shadow-lg px-10 py-16 md:p-15 w-full max-w-3xl mx-auto mt-7 mb-5'>
+      <div className='bg-cyan-300 rounded-3xl shadow-lg px-10 py-16 md:p-15 w-full max-w-3xl mx-auto mt-7 mb-5'>
         <p className='text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-6'>Send Us a Message</p>
 
         <form onSubmit={handleSubmit} className='flex flex-col gap-4 rounded-3xl'>
 
           {/* Name Input */}
           <div className='relative'>
-            <FaUser className='absolute top-3.5 left-3 text-gray-500 text-lg' />
+            <FaUser className='absolute top-3.5 left-3 text-black text-lg' />
             <input
               type='text'
               placeholder='Your Name'
@@ -78,7 +78,7 @@ const Contact = () => {
 
           {/* Email Input */}
           <div className='relative'>
-            <MdEmail className='absolute top-3.5 left-3 text-gray-500 text-lg' />
+            <MdEmail className='absolute top-3.5 left-3 text-black text-lg' />
             <input
               type='email'
               placeholder='Your Email'
@@ -89,7 +89,7 @@ const Contact = () => {
 
           {/* Message Textarea */}
           <div className='relative'>
-            <FaRegCommentDots className='absolute top-3 left-3 text-gray-500 text-lg' />
+            <FaRegCommentDots className='absolute top-3 left-3 text-black text-lg' />
             <textarea
               rows='4'
               placeholder='Your Message'
@@ -100,7 +100,7 @@ const Contact = () => {
 
           <button
             type='submit'
-            className='bg-blue-600 text-white py-3 rounded-md text-lg hover:bg-blue-600 transition-all duration-300'
+            className='bg-green-500 text-white py-3 rounded-md text-2xl hover:bg-cyan-500 transition-all duration-300'
           >
             Send Message
           </button>
