@@ -25,7 +25,7 @@ const Header = () => {
 
                 <a
                     href="#speciality"
-                    className="flex items-center gap-2 bg-green-600 text-white font-semibold px-13 py-5 rounded-full text-2xl shadow-md hover:scale-105 hover:bg-gray-100 transition duration-300"
+                    className="flex items-center gap-2 bg-green-600 text-white font-semibold px-13 py-5 rounded-full text-2xl shadow-md hover:scale-105 hover:bg-green-600 transition duration-300"
                 >
                     Book Appointment
                     <img className="w-5 animate-bounce" src={assets.arrow_button} alt="Arrow" />
