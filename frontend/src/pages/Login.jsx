@@ -6,11 +6,16 @@ import axios from 'axios'; // Use axios for this one-off auth call
 
 const Login = () => {
   const [state, setState] = useState('Login');
+// Updated formData to include the new fields
   const [formData, setFormData] = useState({
-    username: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    phoneNumber: '',
+    temporaryAddress: '',
+    permanentAddress: '',
     password: '',
-    role: 'patient', // Default role for sign-up
+    confirmPassword: '',
   });
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
@@ -23,6 +28,16 @@ const Login = () => {
     event.preventDefault();
     const authUrl = 'http://127.0.0.1:8000/auth/token/';
     const registerUrl = 'http://127.0.0.1:8000/api/users/';
+
+     // Add validation for password confirmation
+    if (state === 'Sign Up') {
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        return; // Stop the form submission
+      }
+    }
+     console.log('Form State:', state);
+    console.log('Form Data:', formData);
 
     try {
       if (state === 'Login') {
@@ -52,42 +67,82 @@ const Login = () => {
 
   return (
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
-      <div className='flex flex-col gap-3 m-auto p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg'>
-        <p className='text-2xl font-semibold'>{state}</p>
-        <p>Please {state === 'Sign Up' ? 'Sign Up' : 'Log in'} to book an appointment</p>
+      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg'>
+        <p className='text-3xl text-black text-center font-semibold'>{state}</p>
+        
 
-        {state === 'Sign Up' && (
-          <div className='w-full'>
-            <p>Email</p>
-            <input name="email" onChange={handleChange} value={formData.email} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='email' />
-          </div>
+        {/* Conditional Rendering for Form Fields */}
+        {state === 'Sign Up' ? (
+          /* =================== SIGN UP FIELDS (Two-Column Layout) =================== */
+          <>
+            {/* --- Row 1: First Name & Last Name --- */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>First Name</p>
+                <input name="firstName" onChange={handleChange} value={formData.firstName} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Last Name</p>
+                <input name="lastName" onChange={handleChange} value={formData.lastName} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+              </div>
+            </div>
+
+            {/* --- Row 2: Email & Phone Number --- */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>Email</p>
+                <input name="email" onChange={handleChange} value={formData.email} required className='border border-black rounded w-full p-2 mt-1' type='email' />
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Phone Number</p>
+                <input name="phoneNumber" onChange={handleChange} value={formData.phoneNumber} required className='border border-black rounded w-full p-2 mt-1' type='tel' />
+              </div>
+            </div>
+            
+            {/* --- Row 3: Temporary & Permanent Address --- */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>Temporary Address</p>
+                <input name="temporaryAddress" onChange={handleChange} value={formData.temporaryAddress} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Permanent Address</p>
+                <input name="permanentAddress" onChange={handleChange} value={formData.permanentAddress} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+              </div>
+            </div>
+            
+            {/* --- Row 4: Password & Confirm Password --- */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>Password</p>
+                <input name="password" onChange={handleChange} value={formData.password} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Confirm Password</p>
+                <input name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+              </div>
+            </div>
+          </>
+        ) : (
+          /* =================== LOGIN FIELDS =================== */
+          <>
+            <div className='w-full text-lg'>
+              <p>Email</p>
+              <input name="email" onChange={handleChange} value={formData.email} required className='border border-black rounded w-full p-2 mt-1' type='email' />
+            </div>
+            <div className='w-full text-lg'>
+              <p>Password</p>
+              <input name="password" onChange={handleChange} value={formData.password} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+            </div>
+          </>
         )}
 
-        <div className='w-full'>
-          <p>First Name</p>
-          <input name="Firstname" onChange={handleChange} value={formData.Lastname} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
-        </div>
-         <div className='w-full'>
-          <p>Last Name</p>
-          <input name="Lastname" onChange={handleChange} value={formData.Lastname} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
-        </div>
-
-       
-
-        <div className='w-full'>
-          <p>Password</p>
-          <input name="password" onChange={handleChange} value={formData.password} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='password' />
-        </div>
-
-         <div className='w-full'>
-          <p>Address</p>
-          <input name="Address" onChange={handleChange} value={formData.Address} required className='border border-zinc-300 rounded w-full p-2 mt-1' type='text' />
-        </div>
-
-        <button type="submit" className='bg-green-600 text-white w-full py-2 rounded-md text-base'>
+        {/* --- Submit Button --- */}
+        <button type="submit" className='bg-green-500 text-white w-full py-2 rounded-md text-lg mt-2'>
           {state}
         </button>
 
+        {/* --- Toggle between Login and Sign Up --- */}
         {state === 'Login' ? (
           <p>Create a new account? <span onClick={() => setState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
         ) : (
