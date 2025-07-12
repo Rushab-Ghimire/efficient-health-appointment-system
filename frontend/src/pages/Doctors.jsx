@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import SearchBar from '../components/SearchBar';
+import apiClient from '../api';
 
 const Doctors = () => {
     const { speciality } = useParams();

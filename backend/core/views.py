@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
 from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer # Import the list serializer
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
@@ -269,3 +269,12 @@ def view_appointment_receipt(request, appointment_id):
 
     # Render the HTML page and return it as the response.
     return render(request, 'core/receipt_page.html', context)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) # Ensures only logged-in users can access this
+def get_current_user(request):
+    """
+    Determines the current user by their token and returns their data.
+    """
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)

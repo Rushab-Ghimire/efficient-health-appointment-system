@@ -151,3 +151,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", # The default port for Vite React apps
     "http://127.0.0.1:5173",
 ]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization', # <--- THIS IS THE IMPORTANT PART
+    'content-type',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# If you use session/cookie based auth (you are using token, but good to have)
+CORS_ALLOW_CREDENTIALS = True

@@ -5,8 +5,20 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from datetime import date, time
 from .models import User, Doctor, Appointment
+from rest_framework.validators import UniqueValidator
+
 
 class UserSerializer(serializers.ModelSerializer):
+    password_confirm = serializers.CharField(write_only=True, required=False)
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="An account with this email already exists. Please use a different email or log in."
+            )
+        ]
+    )
+    
     password_confirm = serializers.CharField(write_only=True, required=False)
     
     class Meta:
