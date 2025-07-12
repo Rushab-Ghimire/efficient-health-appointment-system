@@ -17,6 +17,9 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    temporary_address = models.CharField(max_length=255, blank=True, null=True)
+    permanent_address = models.CharField(max_length=255, blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"
@@ -27,6 +30,7 @@ class Doctor(models.Model):
         on_delete=models.CASCADE, 
         limit_choices_to={'role': 'doctor'}
     )
+    appointment_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     specialization = models.CharField(max_length=100)
     available_from = models.TimeField(default=time(9, 0))  # 9:00 AM
     available_to = models.TimeField(default=time(17, 0))   # 5:00 PM
@@ -120,32 +124,38 @@ class Appointment(models.Model):
             self.generate_qr_code()
 
     def generate_qr_code(self):
-        """Generate QR code for the appointment"""
-        qr_data = (
-            f"Appointment ID: {self.pk}\n"
-            f"Patient: {self.patient.get_full_name()}\n"
-            f"Doctor: {self.doctor.user.get_full_name()}\n"
-            f"Date: {self.date}\n"
-            f"Time: {self.time}\n"
-            f"Specialization: {self.doctor.specialization}"
+        """
+            Generates a QR code containing ONLY the appointment's ID and saves it.
+        """
+        # The data for the QR code is just the primary key (ID) of the appointment.
+        qr_data = str(self.pk)
+        
+        # 1. Create and configure the QRCode object.
+        qr = qrcode.QRCode(
+            version=1,  # Controls the size of the QR Code grid. 1 is the smallest.
+            error_correction=qrcode.constants.ERROR_CORRECT_L, # Low error correction is fine for simple data.
+            box_size=10, # How many pixels each "box" of the QR code is.
+            border=4,   # How many boxes thick the border should be.
         )
         
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
+        # 2. Add the data to the QR Code.
         qr.add_data(qr_data)
         qr.make(fit=True)
         
+        # 3. Create an image from the QR Code instance.
         qr_image = qr.make_image(fill_color="black", back_color="white")
+        
+        # 4. Save the image to an in-memory buffer.
         buffer = BytesIO()
         qr_image.save(buffer, format='PNG')
         file_name = f'qr_{self.pk}.png'
         
+        # 5. Save the buffer content to the ImageField.
+        # 'save=False' prevents this from triggering another model save right away.
         self.qr_code.save(file_name, File(buffer), save=False)
-        # Use update_fields to avoid recursion
+        
+        # 6. Explicitly save just the 'qr_code' field to the database.
+        # This avoids a recursive loop where save() calls generate_qr_code() which calls save().
         super().save(update_fields=['qr_code'])
 
     def __str__(self):

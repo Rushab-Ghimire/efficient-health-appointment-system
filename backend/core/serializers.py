@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'username', 'password', 'password_confirm', 
-            'first_name', 'last_name', 'email', 'role', 'phone_number'
+            'first_name', 'last_name', 'email', 'role', 'phone_number',
+            'temporary_address', 'permanent_address'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -74,7 +75,7 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = (
-            'id', 'user', 'full_name', 'specialization', 
+            'id', 'user', 'full_name', 'specialization','appointment_fee',
             'available_from', 'available_to', 'image', 'is_active'
         )
 

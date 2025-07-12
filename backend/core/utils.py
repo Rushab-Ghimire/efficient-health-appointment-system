@@ -4,6 +4,7 @@ from django.conf import settings
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
 
+
 def send_twilio_sms(phone_number: str, message: str) -> bool:
     if not phone_number.startswith('+'):
         phone_number = f"+977{phone_number.lstrip('0')}"
@@ -20,3 +21,5 @@ def send_twilio_sms(phone_number: str, message: str) -> bool:
     except TwilioRestException as e:
         print(f"Failed to send SMS via Twilio. Error: {e}")
         return False
+
+

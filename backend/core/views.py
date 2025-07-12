@@ -8,6 +8,9 @@ from .models import User, Doctor, Appointment
 from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer # Import the list serializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -24,12 +27,41 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    A read-only viewset for listing doctors. Anyone can see doctors.
-    """
-    queryset = Doctor.objects.filter(is_active=True) # Good practice: only show active doctors
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        """
+        Overrides the default queryset to allow filtering by specialization and fee.
+        
+        Examples:
+        - /api/doctors/
+        - /api/doctors/?specialization=Cardiology
+        - /api/doctors/?max_fee=150.00
+        - /api/doctors/?specialization=Gynecology&max_fee=200.00
+        """
+        # Start with the base list of all active doctors.
+        queryset = Doctor.objects.filter(is_active=True)
+
+        # Get the filter parameters from the URL (e.g., ?specialization=...)
+        specialization = self.request.query_params.get('specialization', None)
+        max_fee = self.request.query_params.get('max_fee', None)
+
+        # If a specialization was provided, filter the queryset.
+        # The 'iexact' makes the search case-insensitive.
+        if specialization:
+            queryset = queryset.filter(specialization__iexact=specialization)
+
+        # If a max_fee was provided, filter the queryset.
+        # The 'lte' means "less than or equal to".
+        if max_fee:
+            try:
+                # We must convert the fee from a string to a number for the query.
+                queryset = queryset.filter(appointment_fee__lte=float(max_fee))
+            except (ValueError, TypeError):
+                # If someone provides an invalid fee (e.g., "abc"), just ignore it.
+                pass
+        return queryset
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -66,6 +98,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Only patients are allowed to book appointments.")
         serializer.save(patient=self.request.user)
         
+        
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not instance.is_cancellable: # A simple check
+            return Response({'error': 'This appointment cannot be edited.'}, status=status.HTTP_400_BAD_REQUEST)
+        return super().update(request, *args, **kwargs)
+    
     @action(detail=True, methods=['post'], url_path='complete')
     def complete_appointment(self, request, pk=None):
         """
@@ -101,6 +140,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             {'status': 'Appointment marked as completed successfully.'},
             status=status.HTTP_200_OK
         )
+        
     
 
     # The old 'verify' method has been removed. This is the only custom action left.
@@ -178,6 +218,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             {'status': 'Appointment marked as No-Show.'},
             status=status.HTTP_200_OK
         )
+    
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -205,3 +246,26 @@ def custom_login_view(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid credentials provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    
+    
+@login_required
+def view_appointment_receipt(request, appointment_id):
+    """
+    A view to display a rich HTML receipt for an appointment.
+    """
+    # Get the appointment, making sure it exists.
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
+
+    # --- SECURITY CHECK ---
+    # Ensure the logged-in user is either the patient or an admin.
+    if not (request.user.is_staff or appointment.patient == request.user):
+        return HttpResponse("You do not have permission to view this receipt.", status=403)
+
+    # The context is a dictionary of data we send to the template.
+    context = {
+        'appointment': appointment
+    }
+
+    # Render the HTML page and return it as the response.
+    return render(request, 'core/receipt_page.html', context)

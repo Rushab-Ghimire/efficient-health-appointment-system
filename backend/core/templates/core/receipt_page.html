@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Receipt - ID {{ appointment.id }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; }
+        .receipt-container { max-width: 600px; margin: 20px auto; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .details-table { width: 100%; }
+        .details-table td { padding: 10px 0; vertical-align: top; }
+        .details-table td:first-child { font-weight: bold; color: #555; width: 150px; }
+        .qr-code { text-align: center; margin-top: 30px; }
+        .qr-code img { max-width: 200px; border: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <h1>Appointment Confirmation</h1>
+        
+        <table class="details-table">
+            
+            <tr><td>Patient Name:</td><td>{{ appointment.patient.get_full_name }}</td></tr>
+            <tr><td>Email:</td><td>{{ appointment.patient.email }}</td></tr>
+            <tr><td>Phone Number:</td><td>{{ appointment.patient.phone_number }}</td></tr>
+            <tr><td>Address:</td><td>{{ appointment.patient.permanent_address }}</td></tr>
+            <tr><td>Doctor:</td><td>Dr. {{ appointment.doctor.user.get_full_name }}</td></tr>
+            <tr><td>Specialization:</td><td>{{ appointment.doctor.specialization }}</td></tr>
+            <tr><td>Date:</td><td>{{ appointment.date|date:"F d, Y" }}</td></tr>
+            <tr><td>Time:</td><td>{{ appointment.time|time:"h:i A" }}</td></tr>
+            <tr><td>Appointment Fee:</td><td>Rs. {{ appointment.doctor.appointment_fee|floatformat:2 }}</td></tr>
+        </table>
+
+        <div class="qr-code">
+            <h3>Scan for Details</h3>
+            <!-- This will display the actual QR code image -->
+            <img src="{{ appointment.qr_code.url }}" alt="Appointment QR Code">
+        </div>
+    </div>
+</body>
+</html>
