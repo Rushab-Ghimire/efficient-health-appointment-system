@@ -1,59 +1,78 @@
 # core/admin.py
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin # Import the base UserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
+from django.contrib import messages
 from .models import User, Doctor, Appointment
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
-# =============================================================================
-# User Admin Configuration
-# =============================================================================
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    
-    # We still need the model to be our custom User model
     model = User
-    """
-    Extends the default UserAdmin to include our custom fields.
-    This method ensures all default functionality, including password management,
-    is inherited correctly.
-    """
-    # Define the fields to display in the user list
-    list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'is_staff')
-    list_filter = ('role', 'is_staff', 'is_superuser', 'is_active', 'groups')
-    
-    # 'fieldsets' controls the layout on the EDIT page.
-    # We define it explicitly for a clean layout.
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'phone_number')}),
-        ('Address Info', {'fields': ('temporary_address', 'permanent_address')}),
-        ('Permissions & Role', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important Dates', {'fields': ('last_login', 'date_joined')}),
+
+    # Fields for editing existing users
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ('Custom Info', {'fields': ('phone_number', 'temporary_address', 'permanent_address', 'role')}),
     )
 
-    # 'add_fieldsets' controls the layout on the ADD page.
-    # The fields here must match the fields defined in our CustomUserCreationForm.
-    # A cleaner, optional way to organize the same fields
+    # CRITICAL: Fields for adding new users
     add_fieldsets = (
-        (None, {'fields': ('username', 'password', 'password2')}),
-        ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'phone_number')}),
-        ('Address Info', {'fields': ('temporary_address', 'permanent_address')}),
-        ('Booking Role', {'fields': ('role',)}),
-        # Here is our new Permissions section
-        ('Permissions', {'fields': ('is_staff',)}),
-)
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'username', 
+                'email', 
+                'first_name', 
+                'last_name', 
+                'phone_number', 
+                'role', 
+                'temporary_address', 
+                'permanent_address', 
+                'password1',  # NOT 'password'
+                'password2'   # This is correct
+            ),
+        }),
+    )
+    
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'role')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'role')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
+    
+    def add_view(self, request, form_url='', extra_context=None):
+        """Override add_view to debug form issues"""
+        print("=== ADMIN ADD VIEW ===")
+        return super().add_view(request, form_url, extra_context)
+    
+    def save_model(self, request, obj, form, change):
+        print("=== ADMIN SAVE MODEL ===")
+        print(f"Change: {change}")
+        print(f"Object: {obj}")
+        print(f"Form is valid: {form.is_valid()}")
+        
+        if not form.is_valid():
+            print("=== FORM ERRORS ===")
+            for field, errors in form.errors.items():
+                print(f"Field '{field}': {errors}")
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+            
+            # Print non-field errors
+            if form.non_field_errors():
+                print(f"Non-field errors: {form.non_field_errors()}")
+                for error in form.non_field_errors():
+                    messages.error(request, f"Error: {error}")
+            
+            return  # Stop saving if form is invalid
+        
+        print("=== SAVING USER ===")
+        super().save_model(request, obj, form, change)
+        messages.success(request, f"User {obj.username} saved successfully!")
 
-
-# =============================================================================
-# Doctor and Appointment Admin (These remain the same)
-# =============================================================================
+# Rest of your admin remains the same
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'specialization', 'appointment_fee','available_from', 'available_to')

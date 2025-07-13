@@ -10,6 +10,7 @@ import qrcode
 from datetime import time, date
 
 class User(AbstractUser):
+    
     ROLE_CHOICES = (
         ('patient', 'Patient'), 
         ('doctor', 'Doctor'), 

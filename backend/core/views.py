@@ -10,6 +10,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.contrib.auth import login 
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -278,3 +281,20 @@ def get_current_user(request):
     """
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) # Ensures only users with a valid token can use this
+def create_user_session(request):
+    """
+    Takes a user authenticated by a token and logs them into a
+    stateful Django session. This sets the session cookie required
+    for views using @login_required.
+    """
+    # The user is already identified by TokenAuthentication
+    user = request.user
+    
+    # Log the user into the session framework
+    login(request, user)
+    
+    return Response({'status': 'session created'}, status=status.HTTP_200_OK)

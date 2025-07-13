@@ -21,7 +21,7 @@ const Doctors = () => {
     }, [doctors, speciality]);
 
     const specialitiesList = [
-        "General physician", "Gynecologist", "Dermatologist", 
+        "General Physician", "Gynecologist", "Dermatologist", 
         "Pediatricians", "Neurologist", "Gastroenterologist", "Cardiology" // Added Cardiology
     ];
 
@@ -60,8 +60,7 @@ const Doctors = () => {
                                 >
                                     <div className='w-full aspect-[4/3] bg-blue-50 overflow-hidden'>
                                         <img
-                                            className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                                            src={imageUrl}
+                                            className='w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300'                                            src={imageUrl}
                                             alt={`Dr. ${doctor.user.first_name} ${doctor.user.last_name}`}
                                             // onError handles cases where the URL is valid but the image file is broken/missing
                                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x225?text=No+Image'; }}

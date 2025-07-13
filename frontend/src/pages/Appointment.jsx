@@ -117,7 +117,7 @@ const Appointment = () => {
                         <p className='text-xl font-semibold text-slate-800'>About:</p>
                         <p className='text-gray-600 mt-1'>Dr. {docInfo.full_name} specializes in {docInfo.specialization} with a patient-first approach.</p>
                     </div>
-                    <p className='text-slate-800 font-semibold mt-4 text-lg'>Appointment fee: <span className='text-black font-bold'>${docInfo.appointment_fee}</span></p>
+                    <p className='text-slate-800 font-semibold mt-4 text-lg'>Appointment fee: <span className='text-black font-bold'>Rs.{docInfo.appointment_fee}</span></p>
                 </div>
             </div>
 
