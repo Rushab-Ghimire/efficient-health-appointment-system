@@ -133,6 +133,10 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
+# INFOBIP_BASE_URL = os.getenv('INFOBIP_BASE_URL')
+# INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
+# INFOBIP_SENDER_ID = os.getenv('INFOBIP_SENDER_ID')
+
 
 # ========================================================================
 # DJANGO REST FRAMEWORK SETTINGS
@@ -163,3 +167,6 @@ CORS_ALLOW_HEADERS = [
 
 # If you use session/cookie based auth (you are using token, but good to have)
 CORS_ALLOW_CREDENTIALS = True
+
+# backend/settings.py
+AUTH_USER_MODEL = 'core.User' 

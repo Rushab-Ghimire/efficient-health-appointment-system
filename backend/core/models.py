@@ -111,7 +111,7 @@ class Appointment(models.Model):
             doctor=self.doctor, 
             date=self.date, 
             time=self.time,
-            status__in=active_statuses  # <-- Add this line
+            status__in=active_statuses 
         ).exclude(pk=self.pk).exists():
             raise ValidationError("This doctor is already booked for this time slot.")
 
