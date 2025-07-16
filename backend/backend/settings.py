@@ -170,3 +170,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 # backend/settings.py
 AUTH_USER_MODEL = 'core.User' 
+
+AUTHENTICATION_BACKENDS = [
+    # This is our custom backend
+    'core.backends.EmailOrUsernameBackend',
+    
+    # This is the default Django backend. Keep it as a fallback.
+    'django.contrib.auth.backends.ModelBackend',
+]

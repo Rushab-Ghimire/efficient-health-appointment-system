@@ -226,19 +226,19 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def custom_login_view(request):
-    username = request.data.get('username')
+    login_identifier = request.data.get('username') or request.data.get('email')
     password = request.data.get('password')
 
-    if not username or not password:
+    if not login_identifier or not password:
         return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = authenticate(username=username, password=password)
+    user = authenticate(request, username=login_identifier, password=password)
 
     if user is not None:
         if not user.is_active:
             return Response({'error': 'This user account is inactive.'}, status=status.HTTP_403_FORBIDDEN)
         
-        token, _ = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
         
         # Include user details in the login response
         user_data = UserSerializer(user).data

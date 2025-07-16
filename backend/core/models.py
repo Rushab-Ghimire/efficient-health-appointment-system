@@ -16,6 +16,11 @@ class User(AbstractUser):
         ('doctor', 'Doctor'), 
         ('admin', 'Admin')
     )
+    email = models.EmailField('email address', unique=True)
+    
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     temporary_address = models.CharField(max_length=255, blank=True, null=True)
