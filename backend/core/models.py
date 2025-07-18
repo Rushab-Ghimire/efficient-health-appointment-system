@@ -16,6 +16,15 @@ class User(AbstractUser):
         ('doctor', 'Doctor'), 
         ('admin', 'Admin')
     )
+
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    )
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+
     email = models.EmailField('email address', unique=True)
     
     USERNAME_FIELD = 'username'
@@ -25,6 +34,9 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     temporary_address = models.CharField(max_length=255, blank=True, null=True)
     permanent_address = models.CharField(max_length=255, blank=True, null=True)
+
+    image = models.ImageField(upload_to='user_profiles/', null=True, blank=True)
+
 
 
     def __str__(self):

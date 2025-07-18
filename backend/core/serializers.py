@@ -9,72 +9,68 @@ from rest_framework.validators import UniqueValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # This field is only for validating password confirmation during signup/update.
     password_confirm = serializers.CharField(write_only=True, required=False)
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message="An account with this email already exists. Please use a different email or log in."
-            )
-        ]
-    )
-    
-    password_confirm = serializers.CharField(write_only=True, required=False)
-    
+
     class Meta:
         model = User
         fields = (
-            'id', 'username', 'password', 'password_confirm', 
-            'first_name', 'last_name', 'email', 'role', 'phone_number',
-            'temporary_address', 'permanent_address'
+            'id', 'username', 'email', 'first_name', 'last_name', 'role', 
+            'phone_number', 'temporary_address', 'permanent_address', 
+            'gender', 'date_of_birth', 'image',
+            'password', 'password_confirm' # Include password fields for create/update
         )
+        
+        # We make certain fields read-only when RETRIEVING a user,
+        # but they are writeable when creating/updating.
+        read_only_fields = ('role',) 
+
         extra_kwargs = {
             'password': {'write_only': True},
-            'email': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
+            'email': {
+                'validators': [
+                    UniqueValidator(
+                        queryset=User.objects.all(),
+                        message="A user with this email already exists."
+                    )
+                ]
+            },
+            # The 'username' uniqueness is already handled by the model,
+            # but we can add a validator here for a better API error message.
+            'username': {
+                'validators': [
+                    UniqueValidator(
+                        queryset=User.objects.all(),
+                        message="A user with this username already exists."
+                    )
+                ]
+            }
         }
 
-    def validate_password(self, password):
-        """Validate password using Django's password validators"""
-        try:
-            validate_password(password)
-        except ValidationError as e:
-            raise serializers.ValidationError(list(e.messages))
-        return password
-
     def validate(self, data):
-        """Validate password confirmation if provided"""
-        if 'password_confirm' in data:
+        """Check that the two password entries match."""
+        if 'password' in data and 'password_confirm' in data:
             if data['password'] != data['password_confirm']:
                 raise serializers.ValidationError("Passwords do not match.")
         return data
 
     def create(self, validated_data):
-        """Create user with hashed password"""
-        # Remove password_confirm from validated_data
+        """Create and return a new `User` instance, given the validated data."""
         validated_data.pop('password_confirm', None)
-        password = validated_data.pop('password', None)
-        
-        instance = self.Meta.model(**validated_data)
-        
-        if password is not None:
-            instance.set_password(password)
-            
-        instance.save()
-        return instance
+        return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
-        """Update user, handle password separately"""
-        validated_data.pop('password_confirm', None)
+        """Update and return an existing `User` instance, given the validated data."""
+        # Handle password update separately to ensure it's hashed.
         password = validated_data.pop('password', None)
-        
-        # Update other fields
+        validated_data.pop('password_confirm', None)
+
+        # Update all other fields from validated_data.
+        # This automatically handles the image file correctly.
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
-        # Update password if provided
-        if password is not None:
+
+        if password:
             instance.set_password(password)
         
         instance.save()

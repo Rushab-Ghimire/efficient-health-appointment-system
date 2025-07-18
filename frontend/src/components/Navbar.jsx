@@ -107,9 +107,7 @@ const Navbar = () => {
                 <NavLink to="/my-appointments" onClick={() => setShowSidebar(false)} className="flex items-center gap-3 hover:text-green-600">
                   <CalendarCheck size={20} /> My Appointments
                 </NavLink>
-                <NavLink to="/settings" onClick={() => setShowSidebar(false)} className="flex items-center gap-3 hover:text-green-600">
-                  <Settings size={20} /> Settings
-                </NavLink>
+                
               </>
             ) : (
               <NavLink to="/login" onClick={() => setShowSidebar(false)}>

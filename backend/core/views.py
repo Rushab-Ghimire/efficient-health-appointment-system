@@ -7,12 +7,22 @@ from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
 from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer # Import the list serializer
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated 
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, BasePermission
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth import login 
+from django.views.decorators.csrf import csrf_exempt 
 
+class IsOwnerOrAdmin(BasePermission):
+    """
+    Custom permission to only allow owners of an object or admins to edit it.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Write permissions are only allowed to the owner of the object or an admin.
+        # obj is the User instance being requested.
+        # request.user is the user making the request (from the token).
+        return obj == request.user or request.user.is_staff
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -24,25 +34,26 @@ class UserViewSet(viewsets.ModelViewSet):
         Instantiates and returns the list of permissions that this view requires.
         """
         if self.action == 'create':
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [permissions.IsAdminUser]
-        return [permission() for permission in permission_classes]
+            return [AllowAny()]
+
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            # For editing or deleting, user must be the owner or an admin
+            return [IsOwnerOrAdmin()]
+            
+        elif self.action == 'list':
+            # Only admins can see the full list of all users
+            return [IsAdminUser()]
+        
+        # For 'retrieve' (viewing a profile), user just needs to be logged in.
+        # This will use the default `permission_classes` defined above.
+        return super().get_permissions()
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        """
-        Overrides the default queryset to allow filtering by specialization and fee.
-        
-        Examples:
-        - /api/doctors/
-        - /api/doctors/?specialization=Cardiology
-        - /api/doctors/?max_fee=150.00
-        - /api/doctors/?specialization=Gynecology&max_fee=200.00
-        """
+       
         # Start with the base list of all active doctors.
         queryset = Doctor.objects.filter(is_active=True)
 
@@ -282,7 +293,7 @@ def get_current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-
+@csrf_exempt 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) # Ensures only users with a valid token can use this
 def create_user_session(request):
@@ -293,6 +304,9 @@ def create_user_session(request):
     """
     # The user is already identified by TokenAuthentication
     user = request.user
+
+    user.backend = 'core.backends.EmailOrUsernameBackend'
+
     
     # Log the user into the session framework
     login(request, user)

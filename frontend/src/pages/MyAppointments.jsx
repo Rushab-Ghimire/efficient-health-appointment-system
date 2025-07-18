@@ -27,6 +27,11 @@ const MyAppointments = () => {
 
   // --- THIS IS THE NEW FUNCTION ---
   const handleViewReceipt = async (appointmentId) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert("You must be logged in to view a receipt.");
+        return;
+    }
     try {
       // Step 1: Call our new endpoint to create a session cookie.
       await apiClient.post('/auth/create-session/');
@@ -44,9 +49,6 @@ const MyAppointments = () => {
     }
   };
 
-  const handleCancel = async (appointmentId) => {
-    // ... (your existing cancel logic remains the same)
-  };
 
   if (loading) {
     return <div className='px-10 py-8'>Loading your appointments...</div>;
@@ -86,11 +88,7 @@ const MyAppointments = () => {
                   View Receipt
                 </button>
                 
-                {appointment.status === 'scheduled' && !appointment.is_past && (
-                  <button onClick={() => handleCancel(appointment.id)} className='...'>
-                    Cancel appointment
-                  </button>
-                )}
+                
               </div>
             </div>
           ))

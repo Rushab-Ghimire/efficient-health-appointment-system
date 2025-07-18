@@ -8,67 +8,79 @@ const AppContextProvider = (props) => {
     const [doctors, setDoctors] = useState([]);
     const [token, setToken] = useState(localStorage.getItem('authToken'));
     const [user, setUser] = useState(null);
-    // This state is crucial for preventing race conditions
-    const [loading, setLoading] = useState(true); // Start as true
+    const [loading, setLoading] = useState(true);
 
-    // This is the login function called from Login.jsx
+    // This is the login function called from your Login component
     const login = (newToken, userData) => {
         localStorage.setItem('authToken', newToken);
+        localStorage.setItem('userId', userData.id);
+        localStorage.setItem('userRole', userData.role);
+
+        // Update the apiClient to use the new token for all subsequent requests
+        apiClient.defaults.headers.common['Authorization'] = `Token ${newToken}`;
+        
         setUser(userData);
-        setToken(newToken); // This will trigger the useEffect below
+        setToken(newToken); // This will trigger the useEffect to re-run
     };
 
     // This is the logout function
     const logout = () => {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
+
+        // Remove the auth header from the apiClient instance
+        delete apiClient.defaults.headers.common['Authorization'];
+
         setUser(null);
-        setToken(null); // This will also trigger the useEffect
+        setToken(null);
     };
     
-    // --- THIS useEffect IS THE HEART OF THE CONTEXT ---
     useEffect(() => {
-        // Create a single async function to manage the initial app load
         const initializeApp = async () => {
+            // First, fetch public data that doesn't require auth
             try {
-                // Always fetch public data like the list of doctors
                 const doctorsResponse = await apiClient.get('/doctors/');
                 setDoctors(doctorsResponse.data);
-
-                // If a token exists, try to validate it and fetch the user profile
-                if (token) {
-                    console.log("Token found, fetching user profile...");
+            } catch (error) {
+                console.error("Failed to fetch doctors list.", error);
+            }
+            
+            // The 'token' state variable is used here from the initial useState
+            if (token) {
+                console.log("Token found, setting auth header and fetching user profile...");
+                apiClient.defaults.headers.common['Authorization'] = `Token ${token}`;
+                try {
+                    // Use the correct, updated URL
                     const userResponse = await apiClient.get('/auth/user/');
                     setUser(userResponse.data);
+                } catch (error) {
+                    console.error("Initialization failed: Invalid token.", error);
+                    logout(); // If token is bad, perform a full logout cleanup
                 }
-            } catch (error) {
-                // This block runs if the token is invalid or expired
-                console.error("Initialization failed, likely due to an invalid token.", error);
-                // Clean up the invalid state
-                logout();
-            } finally {
-                // --- CRITICAL CHANGE 1 ---
-                // No matter what happens (success or failure), the initial loading is now finished.
-                setLoading(false);
             }
+            
+            setLoading(false);
         };
 
         initializeApp();
-    }, [token]); // This effect re-runs whenever the user logs in or out (token changes)
+        // The dependency array is correct. This should run when the token state changes.
+    }, [token]);
 
 
     const contextValue = {
         doctors,
         token,
         user,
-        loading, // --- CRITICAL CHANGE 2: Expose the loading state ---
+        loading,
         login,
         logout,
     };
 
     return (
         <AppContext.Provider value={contextValue}>
-            {/* --- CRITICAL CHANGE 3: Don't render the app until the initial check is done --- */}
-            {!loading && props.children}
+            {/* Show a loading indicator until the initial auth check is done */}
+            {loading ? <p>Loading application...</p> : props.children}
         </AppContext.Provider>
     );
 };

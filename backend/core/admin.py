@@ -14,8 +14,12 @@ class UserAdmin(BaseUserAdmin):
     model = User
 
     # Fields for editing existing users
-    fieldsets = BaseUserAdmin.fieldsets + (
-        ('Custom Info', {'fields': ('phone_number', 'temporary_address', 'permanent_address', 'role')}),
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'date_of_birth', 'gender', 'image')}),
+        ('Custom Profile', {'fields': ('role', 'phone_number', 'temporary_address', 'permanent_address')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
     # CRITICAL: Fields for adding new users
@@ -31,13 +35,15 @@ class UserAdmin(BaseUserAdmin):
                 'role', 
                 'temporary_address', 
                 'permanent_address', 
-                'password1',  # NOT 'password'
-                'password2'   # This is correct
+                'password1',  
+                'password2',
+                'gender',
+                'date_of_birth'  
             ),
         }),
     )
     
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'role')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'gender', 'role', 'is_staff' )
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'role')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
