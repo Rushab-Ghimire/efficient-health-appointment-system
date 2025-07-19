@@ -1,27 +1,11 @@
+// pages/Login.jsx
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api';
-
-// It's good practice to define initial state outside the component
-// to reuse it for resetting the form.
-const initialFormData = {
-  username: '', 
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-  temporaryAddress: '',
-  permanentAddress: '',
-  password: '',
-  confirmPassword: '',
-};
+import axios from 'axios'; // Use axios for this one-off auth call
 
 const Login = () => {
   const [state, setState] = useState('Login');
-<<<<<<< HEAD
-  const [formData, setFormData] = useState(initialFormData);
-=======
 // Updated formData to include the new fields
 const [formData, setFormData] = useState({
     firstName: '',
@@ -35,81 +19,51 @@ const [formData, setFormData] = useState({
     gender: '',
     birthday: '',
   });
->>>>>>> 63cd364 (Added frontend code)
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
-  // A helper function to reset form state when toggling
-  const toggleFormState = (newState) => {
-    setState(newState);
-    setFormData(initialFormData); // Clear form fields on toggle
-  }
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    const authUrl = 'http://127.0.0.1:8000/auth/token/';
+    const registerUrl = 'http://127.0.0.1:8000/api/users/';
 
-    const loginUrl = '/auth/custom-login/'; 
-    const registerUrl = '/users/';
-
-    // Add validation for password confirmation
-    if (state === 'Sign Up' && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return; // Stop the form submission
+     // Add validation for password confirmation
+    if (state === 'Sign Up') {
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        return; // Stop the form submission
+      }
     }
+     console.log('Form State:', state);
+    console.log('Form Data:', formData);
 
-    // FIX: The if/else logic must be inside the try...catch block.
     try {
       if (state === 'Login') {
-        // --- LOGIN LOGIC ---
-        const response = await apiClient.post(loginUrl, {
-          // Send the email value as the username, which is what your backend expects
-          username: formData.email,
+        const response = await axios.post(authUrl, {
+          username: formData.username,
           password: formData.password,
         });
-        login(response.data.token, response.data.user);
-        navigate('/');
-
-      } else { // --- SIGN UP LOGIC ---
-        // 1. Prepare payload for registration
-        const registerPayload = {
-          username: formData.email, // Use email as username by default
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone_number: formData.phoneNumber,
-          temporary_address: formData.temporaryAddress,
-          permanent_address: formData.permanentAddress,
-          password: formData.password,
-          password_confirm: formData.confirmPassword, // Backend might use this for validation
-          role: 'patient' // Hard-code the role for all new sign-ups
-        };
-
-        // 2. Register the new user
-        await apiClient.post(registerUrl, registerPayload);
-
-        // 3. Automatically log them in after successful registration
-        const loginResponse = await apiClient.post(loginUrl, {
-          username: formData.email,
+        const token = response.data.token;
+        login(token); // Call the login function from context
+        navigate('/'); // Redirect to homepage
+      } else { // Sign Up
+        await axios.post(registerUrl, formData);
+        // After successful sign up, automatically log them in
+        const response = await axios.post(authUrl, {
+          username: formData.username,
           password: formData.password,
         });
-        
-        login(loginResponse.data.token, loginResponse.data.user);
+        const token = response.data.token;
+        login(token);
         navigate('/');
       }
     } catch (error) {
-      // Improved error handling to be more robust
-      console.error(`${state} failed`, error.response?.data);
-      const errorData = error.response?.data;
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (errorData) {
-        // This flattens and joins all error messages from the backend
-        errorMessage = Object.values(errorData).flat().join('\n');
-      }
-      alert(`${state} failed:\n${errorMessage}`);
+      console.error(`${state} failed`, error.response.data);
+      alert(`Error: ${JSON.stringify(error.response.data)}`);
     }
   };
 
@@ -117,13 +71,8 @@ const [formData, setFormData] = useState({
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
       <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg bg-white'>
         <p className='text-3xl text-black text-center font-semibold'>{state}</p>
-<<<<<<< HEAD
-        
-        {/* Conditional Rendering for Form Fields (No changes here, this part is well-structured) */}
-=======
 
         {/* =================== SIGN UP FIELDS =================== */}
->>>>>>> 63cd364 (Added frontend code)
         {state === 'Sign Up' ? (
           <>
             {/* Row 1: Name */}
@@ -207,7 +156,7 @@ const [formData, setFormData] = useState({
           /* =================== LOGIN FIELDS =================== */
           <>
             <div className='w-full text-lg'>
-              <p>Email (your username)</p>
+              <p>Email</p>
               <input name="email" onChange={handleChange} value={formData.email} required className='border border-black rounded w-full p-2 mt-1' type='email' />
             </div>
             <div className='w-full text-lg'>
@@ -224,17 +173,9 @@ const [formData, setFormData] = useState({
 
         {/* Toggle Form Type */}
         {state === 'Login' ? (
-<<<<<<< HEAD
-          // UPDATE: Use the new toggle function to also clear form fields
-          <p>Create a new account? <span onClick={() => toggleFormState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
-        ) : (
-          // UPDATE: Use the new toggle function to also clear form fields
-          <p>Already have an account? <span onClick={() => toggleFormState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
-=======
           <p className='text-center'>Create a new account? <span onClick={() => setState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
         ) : (
           <p className='text-center'>Already have an account? <span onClick={() => setState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
->>>>>>> 63cd364 (Added frontend code)
         )}
       </div>
     </form>
