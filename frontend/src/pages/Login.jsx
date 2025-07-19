@@ -19,7 +19,23 @@ const initialFormData = {
 
 const Login = () => {
   const [state, setState] = useState('Login');
+<<<<<<< HEAD
   const [formData, setFormData] = useState(initialFormData);
+=======
+// Updated formData to include the new fields
+const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    temporaryAddress: '',
+    permanentAddress: '',
+    password: '',
+    confirmPassword: '',
+    gender: '',
+    birthday: '',
+  });
+>>>>>>> 63cd364 (Added frontend code)
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -97,15 +113,20 @@ const Login = () => {
     }
   };
 
-  return (
+ return (
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
-      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg'>
+      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg bg-white'>
         <p className='text-3xl text-black text-center font-semibold'>{state}</p>
+<<<<<<< HEAD
         
         {/* Conditional Rendering for Form Fields (No changes here, this part is well-structured) */}
+=======
+
+        {/* =================== SIGN UP FIELDS =================== */}
+>>>>>>> 63cd364 (Added frontend code)
         {state === 'Sign Up' ? (
           <>
-            {/* --- Row 1: First Name & Last Name --- */}
+            {/* Row 1: Name */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>First Name</p>
@@ -117,7 +138,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* --- Row 2: Email & Phone Number --- */}
+            {/* Row 2: Email + Phone */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Email</p>
@@ -128,8 +149,8 @@ const Login = () => {
                 <input name="phoneNumber" onChange={handleChange} value={formData.phoneNumber} required className='border border-black rounded w-full p-2 mt-1' type='tel' />
               </div>
             </div>
-            
-            {/* --- Row 3: Temporary & Permanent Address --- */}
+
+            {/* Row 3: Address */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Temporary Address</p>
@@ -140,8 +161,37 @@ const Login = () => {
                 <input name="permanentAddress" onChange={handleChange} value={formData.permanentAddress} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
             </div>
-            
-            {/* --- Row 4: Password & Confirm Password --- */}
+
+            {/* Row 4: Gender + Birthday */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>Gender</p>
+                <select
+                  name="gender"
+                  onChange={handleChange}
+                  value={formData.gender}
+                  required
+                  className='border border-black rounded w-full p-2 mt-1 bg-white'
+                >
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Birthday</p>
+                <input
+                  name="birthday"
+                  onChange={handleChange}
+                  value={formData.birthday}
+                  required
+                  className='border border-black rounded w-full p-2 mt-1'
+                  type='date'
+                />
+              </div>
+            </div>
+
+            {/* Row 5: Passwords */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Password</p>
@@ -167,18 +217,24 @@ const Login = () => {
           </>
         )}
 
-        {/* --- Submit Button --- */}
+        {/* Submit Button */}
         <button type="submit" className='bg-green-500 text-white w-full py-2 rounded-md text-lg mt-2'>
           {state}
         </button>
 
-        {/* --- Toggle between Login and Sign Up --- */}
+        {/* Toggle Form Type */}
         {state === 'Login' ? (
+<<<<<<< HEAD
           // UPDATE: Use the new toggle function to also clear form fields
           <p>Create a new account? <span onClick={() => toggleFormState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
         ) : (
           // UPDATE: Use the new toggle function to also clear form fields
           <p>Already have an account? <span onClick={() => toggleFormState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
+=======
+          <p className='text-center'>Create a new account? <span onClick={() => setState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
+        ) : (
+          <p className='text-center'>Already have an account? <span onClick={() => setState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
+>>>>>>> 63cd364 (Added frontend code)
         )}
       </div>
     </form>
