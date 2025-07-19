@@ -2,6 +2,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import apiClient from '../api'; // Use your configured apiClient
 
 const initialFormData = {
@@ -23,6 +24,25 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+=======
+import axios from 'axios'; // Use axios for this one-off auth call
+
+const Login = () => {
+  const [state, setState] = useState('Login');
+// Updated formData to include the new fields
+const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    temporaryAddress: '',
+    permanentAddress: '',
+    password: '',
+    confirmPassword: '',
+    gender: '',
+    birthday: '',
+  });
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -30,6 +50,7 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+<<<<<<< HEAD
   const toggleForm = () => {
     setIsLogin(!isLogin);
     setError('');
@@ -116,6 +137,57 @@ const onSubmitHandler = async (event) => {
               <input name="username" onChange={handleChange} value={formData.username} required className='border border-black rounded w-full p-2 mt-1' type='text' />
             </div>
 
+=======
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    const authUrl = 'http://127.0.0.1:8000/auth/token/';
+    const registerUrl = 'http://127.0.0.1:8000/api/users/';
+
+     // Add validation for password confirmation
+    if (state === 'Sign Up') {
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        return; // Stop the form submission
+      }
+    }
+     console.log('Form State:', state);
+    console.log('Form Data:', formData);
+
+    try {
+      if (state === 'Login') {
+        const response = await axios.post(authUrl, {
+          username: formData.username,
+          password: formData.password,
+        });
+        const token = response.data.token;
+        login(token); // Call the login function from context
+        navigate('/'); // Redirect to homepage
+      } else { // Sign Up
+        await axios.post(registerUrl, formData);
+        // After successful sign up, automatically log them in
+        const response = await axios.post(authUrl, {
+          username: formData.username,
+          password: formData.password,
+        });
+        const token = response.data.token;
+        login(token);
+        navigate('/');
+      }
+    } catch (error) {
+      console.error(`${state} failed`, error.response.data);
+      alert(`Error: ${JSON.stringify(error.response.data)}`);
+    }
+  };
+
+ return (
+    <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
+      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg bg-white'>
+        <p className='text-3xl text-black text-center font-semibold'>{state}</p>
+
+        {/* =================== SIGN UP FIELDS =================== */}
+        {state === 'Sign Up' ? (
+          <>
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
             {/* Row 1: Name */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
@@ -127,7 +199,11 @@ const onSubmitHandler = async (event) => {
                 <input name="last_name" onChange={handleChange} value={formData.last_name} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
             </div>
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
             {/* Row 2: Email + Phone */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
@@ -164,9 +240,14 @@ const onSubmitHandler = async (event) => {
                   className='border border-black rounded w-full p-2 mt-1 bg-white'
                 >
                   <option value="">Select</option>
+<<<<<<< HEAD
                   <option value="male">Male</option>   {/* CORRECTED: lowercase */}
                   <option value="female">Female</option> {/* CORRECTED: lowercase */}
                   <option value="other">Other</option>   {/* CORRECTED: lowercase */}
+=======
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
                 </select>
               </div>
               <div className='sm:w-1/2'>
@@ -194,18 +275,45 @@ const onSubmitHandler = async (event) => {
               </div>
             </div>
           </>
+<<<<<<< HEAD
         )}
 
+=======
+        ) : (
+          /* =================== LOGIN FIELDS =================== */
+          <>
+            <div className='w-full text-lg'>
+              <p>Email</p>
+              <input name="email" onChange={handleChange} value={formData.email} required className='border border-black rounded w-full p-2 mt-1' type='email' />
+            </div>
+            <div className='w-full text-lg'>
+              <p>Password</p>
+              <input name="password" onChange={handleChange} value={formData.password} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+            </div>
+          </>
+        )}
+
+        {/* Submit Button */}
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
         <button type="submit" className='bg-green-500 text-white w-full py-2 rounded-md text-lg mt-2'>
           {isLogin ? 'Login' : 'Sign Up'}
         </button>
 
+<<<<<<< HEAD
         <p className='text-center'>
           {isLogin ? 'Create a new account?' : 'Already have an account?'}
           <span onClick={toggleForm} className='text-cyan-600 underline cursor-pointer ml-1'>
             {isLogin ? 'Click here' : 'Login here'}
           </span>
         </p>
+=======
+        {/* Toggle Form Type */}
+        {state === 'Login' ? (
+          <p className='text-center'>Create a new account? <span onClick={() => setState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
+        ) : (
+          <p className='text-center'>Already have an account? <span onClick={() => setState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
+        )}
+>>>>>>> e01b57980eac182b0278d366e2fa5b00da6856df
       </div>
     </form>
   );
