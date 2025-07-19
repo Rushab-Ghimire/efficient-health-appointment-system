@@ -13,6 +13,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth import login 
 from django.views.decorators.csrf import csrf_exempt 
+from django.conf import settings
+from rest_framework.views import APIView
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from .pinecone_utils import get_doctor_recommendations
+from .models import Doctor 
+
+
 
 class IsOwnerOrAdmin(BasePermission):
     """
@@ -31,21 +39,23 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """
-        Instantiates and returns the list of permissions that this view requires.
+        Custom permissions for User actions.
         """
         if self.action == 'create':
-            return [AllowAny()]
-
+            # Anyone can sign up
+            self.permission_classes = [AllowAny]
         elif self.action in ['update', 'partial_update', 'destroy']:
-            # For editing or deleting, user must be the owner or an admin
-            return [IsOwnerOrAdmin()]
-            
+            # Only the user themselves or an admin can edit/delete a profile
+            self.permission_classes = [IsOwnerOrAdmin]
         elif self.action == 'list':
-            # Only admins can see the full list of all users
-            return [IsAdminUser()]
+            # Only admins can see the full list of users
+            self.permission_classes = [IsAdminUser]
         
-        # For 'retrieve' (viewing a profile), user just needs to be logged in.
-        # This will use the default `permission_classes` defined above.
+        # For 'retrieve' (getting a single profile), it will use the default
+        # class-level permission_classes defined above, which is [IsAuthenticated].
+        # This means any logged-in user can view any profile, which is a common
+        # requirement. If you want to restrict this, you could add another `elif`.
+
         return super().get_permissions()
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
@@ -312,3 +322,56 @@ def create_user_session(request):
     login(request, user)
     
     return Response({'status': 'session created'}, status=status.HTTP_200_OK)
+
+
+pinecone_vectorstore = None
+try:
+    # Check for the necessary API keys from settings.py
+    if all([settings.PINECONE_API_KEY, settings.PINECONE_ENVIRONMENT]):
+        # Initialize the free, open-source embedding model
+        embeddings = HuggingFaceEmbeddings(model_name="multi-qa-MiniLM-L6-cos-v1")
+        
+        # Connect to your existing Pinecone index
+        pinecone_vectorstore = PineconeVectorStore.from_existing_index(
+            index_name="health-doctors-hf",  # This MUST match the index name you created
+            embedding=embeddings
+        )
+        print("Pinecone vector store (Hugging Face) connected successfully.")
+    else:
+        print("Pinecone credentials missing. AI Recommendation feature will be disabled.")
+except Exception as e:
+    print(f"Error connecting to Pinecone (Hugging Face): {e}. AI Recommendation feature will be disabled.")
+# ---
+
+
+
+
+
+# ========================================================================
+# AI DOCTOR RECOMMENDATION ENDPOINT
+# ========================================================================
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def recommend_doctor_ai(request):
+    """
+    AI-powered doctor recommendation endpoint.
+    """
+    try:
+        user_query = request.data.get('issue', '').strip()
+        
+        if not user_query:
+            return Response({'message': 'Medical issue query is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # --- This is the key change ---
+        # Call the centralized utility function to get the list of recommended doctors
+        recommended_doctors = get_doctor_recommendations(user_query, top_k=3, score_threshold=0.25)
+        
+        # Serialize the final list of doctor objects
+        serializer = DoctorSerializer(recommended_doctors, many=True)
+        
+        return Response({'recommendations': serializer.data})
+        
+    except Exception as e:
+        print(f"Error in recommend_doctor_ai view: {e}")
+        return Response({'error': 'An internal server error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

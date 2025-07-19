@@ -71,6 +71,13 @@ const Navbar = () => {
           <NavLink to="/doctors" className="p-2 bg-slate-200 rounded-md hover:bg-green-200 hover:underline underline-offset-4 text-black shadow-sm">
             FIND DOCTORS
           </NavLink>
+
+         
+
+          {/* --- 1. ADD THE AI DOCTOR FINDER LINK HERE FOR DESKTOP --- */}
+          <NavLink to="/ai-doctor-finder" className="p-2 bg-slate-200 rounded-md hover:bg-green-200 hover:underline underline-offset-4 text-black shadow-sm font-bold">
+            AI Doctor Finder
+          </NavLink>
           
           {/* --- 3. Conditional "Book Appointment" Button --- */}
           {/* This button now correctly links to the doctors page so the user can choose a doctor. */}

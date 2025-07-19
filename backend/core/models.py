@@ -8,6 +8,8 @@ from io import BytesIO
 from django.core.files import File
 import qrcode
 from datetime import time, date
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class User(AbstractUser):
     
@@ -54,6 +56,16 @@ class Doctor(models.Model):
     available_to = models.TimeField(default=time(17, 0))   # 5:00 PM
     image = models.ImageField(upload_to='doctors/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    qualification = models.CharField(max_length=255, blank=True, help_text="e.g., MD, MBBS, PhD")
+    experience_years = models.PositiveIntegerField(default=0)
+    consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=100.00)
+    rating = models.DecimalField(
+        max_digits=3, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)]
+    )
 
     def clean(self):
         if self.available_from >= self.available_to:

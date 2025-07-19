@@ -16,6 +16,7 @@ import Contact from './pages/Contact';
 import MyProfile from './pages/MyProfile';
 import MyAppointments from './pages/MyAppointments';
 import Appointment from './pages/Appointment';
+import AIDoctorFinder from './components/AIDoctorFinder'; 
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
         {/* --- Protected Routes (Must be logged in to access) --- */}
         <Route element={<ProtectedRoute />}>
           <Route path='/my-profile' element={<MyProfile />} />
+          <Route path="/ai-doctor-finder" element={<AIDoctorFinder />} /> 
           <Route path='/my-appointments' element={<MyAppointments />} />
           <Route path='/appointment/:docId' element={<Appointment />} />
 

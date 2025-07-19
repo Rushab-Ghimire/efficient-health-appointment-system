@@ -178,3 +178,8 @@ AUTHENTICATION_BACKENDS = [
     # This is the default Django backend. Keep it as a fallback.
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
+# --- Pinecone Credentials ---
+PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
+PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
