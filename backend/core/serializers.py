@@ -11,6 +11,8 @@ from rest_framework.validators import UniqueValidator
 class UserSerializer(serializers.ModelSerializer):
     # This field is only for validating password confirmation during signup/update.
     password_confirm = serializers.CharField(write_only=True, required=False)
+    image = serializers.ImageField(source='doctor.image', read_only=True) # Read the related doctor's image
+
 
     class Meta:
         model = User
@@ -23,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
         
         # We make certain fields read-only when RETRIEVING a user,
         # but they are writeable when creating/updating.
-        read_only_fields = ('role',) 
+        read_only_fields = ('role', 'image') 
 
         extra_kwargs = {
             'password': {'write_only': True},
@@ -217,3 +219,19 @@ class AppointmentListSerializer(serializers.ModelSerializer):
     
     def get_specialization(self, obj):
         return obj.doctor.specialization
+
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    """
+    A serializer for the User model intended for use by admins.
+    It allows the 'role' field to be set and updated.
+    """
+    class Meta:
+        model = User
+        # Include all fields, including the role
+        fields = (
+            'id', 'email', 'username', 'first_name', 'last_name', 'role', 
+            'phone_number', 'temporary_address', 'permanent_address', 
+            'gender', 'date_of_birth', 'is_active', 'is_staff', 'is_superuser'
+        )

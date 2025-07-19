@@ -5,7 +5,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
-from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer # Import the list serializer
+from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer, AdminUserSerializer # Import the list serializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, BasePermission
 from django.shortcuts import render, get_object_or_404
@@ -39,24 +39,37 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """
-        Custom permissions for User actions.
+        Instantiates and returns the list of permissions that this view requires.
         """
+        # For the 'create' action (signup), allow anyone.
         if self.action == 'create':
-            # Anyone can sign up
-            self.permission_classes = [AllowAny]
+            permission_classes = [AllowAny]
+        # For actions that modify a specific user, use our custom permission.
         elif self.action in ['update', 'partial_update', 'destroy']:
-            # Only the user themselves or an admin can edit/delete a profile
-            self.permission_classes = [IsOwnerOrAdmin]
+            permission_classes = [IsOwnerOrAdmin]
+        # For listing all users, require admin status.
         elif self.action == 'list':
-            # Only admins can see the full list of users
-            self.permission_classes = [IsAdminUser]
-        
-        # For 'retrieve' (getting a single profile), it will use the default
-        # class-level permission_classes defined above, which is [IsAuthenticated].
-        # This means any logged-in user can view any profile, which is a common
-        # requirement. If you want to restrict this, you could add another `elif`.
+            permission_classes = [IsAdminUser]
+        # For all other actions (like 'retrieve'), use the default.
+        else:
+            permission_classes = self.permission_classes
 
-        return super().get_permissions()
+        # This is the crucial part: instantiate and return the list of classes.
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        """
+        Return the appropriate serializer class based on the user's role.
+        """
+        if self.request.user.is_staff:
+            return AdminUserSerializer
+        return UserSerializer
+
+    def perform_create(self, serializer):
+        """
+        Called when a new user is created. Securely sets the role to 'patient'.
+        """
+        user = serializer.save(role='patient')
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DoctorSerializer

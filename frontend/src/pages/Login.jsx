@@ -16,7 +16,7 @@ const initialFormData = {
   password: '',
   password_confirm: '',
   gender: '',
-  birthday: '',
+  date_of_birth: '',
 };
 
 const Login = () => {
@@ -45,6 +45,7 @@ const onSubmitHandler = async (event) => {
   // Define the ONE correct URL for logging in.
   const loginUrl = 'auth/custom-login/';
   const registerUrl = 'api/users/';
+
 
   try {
     if (isLogin) {
@@ -170,11 +171,11 @@ const onSubmitHandler = async (event) => {
                 </select>
               </div>
               <div className='sm:w-1/2'>
-                <p>Birthday</p>
+                <p>Date of birth</p>
                 <input
-                  name="birthday"
+                  name="date_of_birth"
                   onChange={handleChange}
-                  value={formData.birthday}
+                  value={formData.date_of_birth}
                   required
                   className='border border-black rounded w-full p-2 mt-1'
                   type='date'

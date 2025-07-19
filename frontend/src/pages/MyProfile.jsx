@@ -158,7 +158,7 @@ const Myprofile = () => {
                             </select>
                         ) : <p className='text-black capitalize'>{formData.gender || 'N/A'}</p>}
 
-                        <p className='font-medium'>Birthday:</p>
+                        <p className='font-medium'>Date of Birth:</p>
                         {isEdit ? <input name="date_of_birth" value={formData.date_of_birth || ''} onChange={handleInputChange} type="date" className='bg-indigo-50 px-2 py-1 rounded-md' /> : <p className='text-black'>{formData.date_of_birth || 'N/A'}</p>}
                     </div>
                 </div>
