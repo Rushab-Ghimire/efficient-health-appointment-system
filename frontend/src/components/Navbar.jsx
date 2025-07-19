@@ -4,7 +4,7 @@ import React, { useState, useContext } from 'react'; // <-- Import useContext
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext'; // <-- Import your context
 import {
-  Menu, User, CalendarCheck, Settings, LogOut, ChevronDown, X
+  Menu, User, CalendarCheck, LogOut, ChevronDown, X
 } from 'lucide-react';
 import { assets } from '../assets/assets';
 

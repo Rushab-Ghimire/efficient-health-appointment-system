@@ -32,7 +32,7 @@ const AIDoctorFinder = () => {
 
     try {
       // --- This is the API call to your new Django endpoint ---
-      const response = await apiClient.post('/recommend-doctor-ai/', {
+      const response = await apiClient.post('/api/recommend-doctor-ai/', {
         issue: issue
       });
       setRecommendedDoctors(response.data.recommendations);

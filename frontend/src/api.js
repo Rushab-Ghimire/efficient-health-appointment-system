@@ -2,13 +2,18 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api', // Your Django API base URL
+  // --- THIS IS THE FIX ---
+  // Set the baseURL to the absolute root of your Django server.
+  // The trailing slash is important.
+  baseURL: 'http://127.0.0.1:8000/',
+  
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// This is a magic step! It adds the auth token to every request if it exists.
+// This interceptor is perfectly written and is a great feature.
+// It will automatically add the auth token to every request.
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken');
   if (token) {

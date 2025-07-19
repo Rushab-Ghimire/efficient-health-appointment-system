@@ -1,13 +1,15 @@
-// src/App.jsx - FINAL CORRECT VERSION
+// src/App.jsx - FINAL CORRECTED VERSION
+
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-// Component Imports
+// --- Step 1: Combine and clean up all imports ---
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute'; // <-- The gatekeeper
+import ProtectedRoute from './components/ProtectedRoute'; // For logged-in users
+import RequireStaff from './components/RequireStaff';   // For staff/admins only
 
-// Page Imports
+// Import all necessary pages
 import Home from './pages/Home';
 import Doctors from './pages/Doctors';
 import Login from './pages/Login';
@@ -16,30 +18,49 @@ import Contact from './pages/Contact';
 import MyProfile from './pages/MyProfile';
 import MyAppointments from './pages/MyAppointments';
 import Appointment from './pages/Appointment';
-import AIDoctorFinder from './components/AIDoctorFinder'; 
+import VerificationPage from './pages/VerificationPage';
+import AIDoctorFinder from './components/AIDoctorFinder'; // Your new component
 
 const App = () => {
   return (
-    <div> {/* No <Router> or <BrowserRouter> here! */}
+    <div>
       <Navbar />
-      <Routes>
-        {/* --- Public Routes (Anyone can access) --- */}
-        <Route path='/' element={<Home />} />
-        <Route path='/doctors' element={<Doctors />} />
-        <Route path='/doctors/:speciality' element={<Doctors />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
+      <main className="main-content"> {/* Good practice to wrap content in a main tag */}
+        <Routes>
+          {/* =================================================== */}
+          {/*                  Public Routes                      */}
+          {/* =================================================== */}
+          {/* These routes are accessible to anyone, logged in or not. */}
 
-        {/* --- Protected Routes (Must be logged in to access) --- */}
-        <Route element={<ProtectedRoute />}>
-          <Route path='/my-profile' element={<MyProfile />} />
-          <Route path="/ai-doctor-finder" element={<AIDoctorFinder />} /> 
-          <Route path='/my-appointments' element={<MyAppointments />} />
-          <Route path='/appointment/:docId' element={<Appointment />} />
+          <Route path='/' element={<Home />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/doctors' element={<Doctors />} />
+          <Route path='/doctors/:speciality' element={<Doctors />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
+          
+          {/* The AI Doctor Finder is a public feature */}
+          <Route path="/ai-doctor-finder" element={<AIDoctorFinder />} />
 
-        </Route>
-      </Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path='/my-profile' element={<MyProfile />} />
+            <Route path='/my-appointments' element={<MyAppointments />} />
+            <Route path='/appointment/:docId' element={<Appointment />} />
+          </Route>
+
+          {/* =================================================== */}
+          {/*         Protected Routes (for Staff/Admins Only)      */}
+          {/* =================================================== */}
+          {/* The RequireStaff component will check if the logged-in user has */}
+          {/* the 'admin' or 'doctor' role. */}
+
+          <Route element={<RequireStaff />}>
+            <Route path="/staff/verify" element={<VerificationPage />} />
+            {/* You can add more staff-only routes here in the future */}
+          </Route>
+          
+        </Routes>
+      </main>
       <Footer />
     </div>
   );

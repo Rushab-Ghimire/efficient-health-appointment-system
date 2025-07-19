@@ -1,123 +1,134 @@
+// pages/Login.jsx
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api';
+import apiClient from '../api'; // Use your configured apiClient
 
-// It's good practice to define initial state outside the component
-// to reuse it for resetting the form.
 const initialFormData = {
-  username: '', 
-  firstName: '',
-  lastName: '',
+  // --- CORRECTED: Use snake_case to match the Django API ---
+  username: '',
+  first_name: '',
+  last_name: '',
   email: '',
-  phoneNumber: '',
-  temporaryAddress: '',
-  permanentAddress: '',
+  phone_number: '',
+  temporary_address: '',
+  permanent_address: '',
   password: '',
-  confirmPassword: '',
+  password_confirm: '',
+  gender: '',
+  birthday: '',
 };
 
 const Login = () => {
-  const [state, setState] = useState('Login');
-  const [formData, setFormData] = useState(initialFormData);
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
-  // A helper function to reset form state when toggling
-  const toggleFormState = (newState) => {
-    setState(newState);
-    setFormData(initialFormData); // Clear form fields on toggle
-  }
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-
-    const loginUrl = '/auth/custom-login/'; 
-    const registerUrl = '/users/';
-
-    // Add validation for password confirmation
-    if (state === 'Sign Up' && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return; // Stop the form submission
-    }
-
-    // FIX: The if/else logic must be inside the try...catch block.
-    try {
-      if (state === 'Login') {
-        // --- LOGIN LOGIC ---
-        const response = await apiClient.post(loginUrl, {
-          // Send the email value as the username, which is what your backend expects
-          username: formData.email,
-          password: formData.password,
-        });
-        login(response.data.token, response.data.user);
-        navigate('/');
-
-      } else { // --- SIGN UP LOGIC ---
-        // 1. Prepare payload for registration
-        const registerPayload = {
-          username: formData.email, // Use email as username by default
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone_number: formData.phoneNumber,
-          temporary_address: formData.temporaryAddress,
-          permanent_address: formData.permanentAddress,
-          password: formData.password,
-          password_confirm: formData.confirmPassword, // Backend might use this for validation
-          role: 'patient' // Hard-code the role for all new sign-ups
-        };
-
-        // 2. Register the new user
-        await apiClient.post(registerUrl, registerPayload);
-
-        // 3. Automatically log them in after successful registration
-        const loginResponse = await apiClient.post(loginUrl, {
-          username: formData.email,
-          password: formData.password,
-        });
-        
-        login(loginResponse.data.token, loginResponse.data.user);
-        navigate('/');
-      }
-    } catch (error) {
-      // Improved error handling to be more robust
-      console.error(`${state} failed`, error.response?.data);
-      const errorData = error.response?.data;
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (errorData) {
-        // This flattens and joins all error messages from the backend
-        errorMessage = Object.values(errorData).flat().join('\n');
-      }
-      alert(`${state} failed:\n${errorMessage}`);
-    }
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    // Reset form to the correct state when toggling
+    setFormData(isLogin ? initialFormData : { username: '', password: '' });
   };
 
+// In your Login.jsx component
+
+const onSubmitHandler = async (event) => {
+  event.preventDefault();
+  
+  // Define the ONE correct URL for logging in.
+  const loginUrl = 'auth/custom-login/';
+  const registerUrl = 'api/users/';
+
+  try {
+    if (isLogin) {
+      // --- LOGIN LOGIC ---
+      const response = await apiClient.post(loginUrl, {
+        username: formData.username, // Can be username or email
+        password: formData.password,
+      });
+      
+      // Pass both token and user to the context
+      login(response.data.token, response.data.user);
+      navigate('/'); // Or navigate('/my-profile')
+
+    } else { 
+      // --- SIGN UP LOGIC ---
+      if (formData.password !== formData.password_confirm) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      // 1. Register the new user (This part is correct)
+      await apiClient.post(registerUrl, { ...formData, role: 'patient' });
+
+      // 2. Automatically log them in using the CORRECT loginUrl
+      const loginResponse = await apiClient.post(loginUrl, { // <-- FIX: Use loginUrl
+        username: formData.username, // Use their new username
+        password: formData.password,
+      });
+      
+      // Pass both token and user to the context
+      login(loginResponse.data.token, loginResponse.data.user);
+      navigate('/'); // Or navigate('/my-profile')
+    }
+  } catch (error) {
+    // Your error handling is good
+    const errorData = error.response?.data;
+    let errorMessage = 'An unexpected error occurred.';
+    if (errorData) {
+      errorMessage = Object.values(errorData).flat().join(' ');
+    }
+    alert(`Error: ${errorMessage}`);
+    console.error(error);
+  }
+};
   return (
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
-      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg'>
-        <p className='text-3xl text-black text-center font-semibold'>{state}</p>
-        
-        {/* Conditional Rendering for Form Fields (No changes here, this part is well-structured) */}
-        {state === 'Sign Up' ? (
+      <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg bg-white'>
+        <p className='text-3xl text-black text-center font-semibold'>{isLogin ? 'Login' : 'Sign Up'}</p>
+        {error && <p className="text-center text-red-500">{error}</p>}
+
+        {isLogin ? (
+          /* =================== LOGIN FIELDS =================== */
           <>
-            {/* --- Row 1: First Name & Last Name --- */}
+            <div className='w-full text-lg'>
+              <p>Username or Email</p>
+              <input name="username" onChange={handleChange} value={formData.username} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+            </div>
+            <div className='w-full text-lg'>
+              <p>Password</p>
+              <input name="password" onChange={handleChange} value={formData.password} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+            </div>
+          </>
+        ) : (
+          /* =================== SIGN UP FIELDS =================== */
+          <>
+            {/* Row 0: Username (Required by backend) */}
+            <div className='w-full'>
+              <p>Username</p>
+              <input name="username" onChange={handleChange} value={formData.username} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+            </div>
+
+            {/* Row 1: Name */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>First Name</p>
-                <input name="firstName" onChange={handleChange} value={formData.firstName} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+                <input name="first_name" onChange={handleChange} value={formData.first_name} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
               <div className='sm:w-1/2'>
                 <p>Last Name</p>
-                <input name="lastName" onChange={handleChange} value={formData.lastName} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+                <input name="last_name" onChange={handleChange} value={formData.last_name} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
             </div>
-
-            {/* --- Row 2: Email & Phone Number --- */}
+            
+            {/* Row 2: Email + Phone */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Email</p>
@@ -125,23 +136,53 @@ const Login = () => {
               </div>
               <div className='sm:w-1/2'>
                 <p>Phone Number</p>
-                <input name="phoneNumber" onChange={handleChange} value={formData.phoneNumber} required className='border border-black rounded w-full p-2 mt-1' type='tel' />
+                <input name="phone_number" onChange={handleChange} value={formData.phone_number} required className='border border-black rounded w-full p-2 mt-1' type='tel' />
               </div>
             </div>
-            
-            {/* --- Row 3: Temporary & Permanent Address --- */}
+
+            {/* Row 3: Address */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Temporary Address</p>
-                <input name="temporaryAddress" onChange={handleChange} value={formData.temporaryAddress} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+                <input name="temporary_address" onChange={handleChange} value={formData.temporary_address} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
               <div className='sm:w-1/2'>
                 <p>Permanent Address</p>
-                <input name="permanentAddress" onChange={handleChange} value={formData.permanentAddress} required className='border border-black rounded w-full p-2 mt-1' type='text' />
+                <input name="permanent_address" onChange={handleChange} value={formData.permanent_address} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
             </div>
-            
-            {/* --- Row 4: Password & Confirm Password --- */}
+
+            {/* Row 4: Gender + Birthday */}
+            <div className='flex flex-col sm:flex-row gap-4 w-full'>
+              <div className='sm:w-1/2'>
+                <p>Gender</p>
+                <select
+                  name="gender"
+                  onChange={handleChange}
+                  value={formData.gender}
+                  required
+                  className='border border-black rounded w-full p-2 mt-1 bg-white'
+                >
+                  <option value="">Select</option>
+                  <option value="male">Male</option>   {/* CORRECTED: lowercase */}
+                  <option value="female">Female</option> {/* CORRECTED: lowercase */}
+                  <option value="other">Other</option>   {/* CORRECTED: lowercase */}
+                </select>
+              </div>
+              <div className='sm:w-1/2'>
+                <p>Birthday</p>
+                <input
+                  name="birthday"
+                  onChange={handleChange}
+                  value={formData.birthday}
+                  required
+                  className='border border-black rounded w-full p-2 mt-1'
+                  type='date'
+                />
+              </div>
+            </div>
+
+            {/* Row 5: Passwords */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>
                 <p>Password</p>
@@ -149,37 +190,22 @@ const Login = () => {
               </div>
               <div className='sm:w-1/2'>
                 <p>Confirm Password</p>
-                <input name="confirmPassword" onChange={handleChange} value={formData.confirmPassword} required className='border border-black rounded w-full p-2 mt-1' type='password' />
+                <input name="password_confirm" onChange={handleChange} value={formData.password_confirm} required className='border border-black rounded w-full p-2 mt-1' type='password' />
               </div>
             </div>
           </>
-        ) : (
-          /* =================== LOGIN FIELDS =================== */
-          <>
-            <div className='w-full text-lg'>
-              <p>Email (your username)</p>
-              <input name="email" onChange={handleChange} value={formData.email} required className='border border-black rounded w-full p-2 mt-1' type='email' />
-            </div>
-            <div className='w-full text-lg'>
-              <p>Password</p>
-              <input name="password" onChange={handleChange} value={formData.password} required className='border border-black rounded w-full p-2 mt-1' type='password' />
-            </div>
-          </>
         )}
 
-        {/* --- Submit Button --- */}
         <button type="submit" className='bg-green-500 text-white w-full py-2 rounded-md text-lg mt-2'>
-          {state}
+          {isLogin ? 'Login' : 'Sign Up'}
         </button>
 
-        {/* --- Toggle between Login and Sign Up --- */}
-        {state === 'Login' ? (
-          // UPDATE: Use the new toggle function to also clear form fields
-          <p>Create a new account? <span onClick={() => toggleFormState('Sign Up')} className='text-cyan-600 underline cursor-pointer'>Click here</span></p>
-        ) : (
-          // UPDATE: Use the new toggle function to also clear form fields
-          <p>Already have an account? <span onClick={() => toggleFormState('Login')} className='text-cyan-600 underline cursor-pointer'>Login here</span></p>
-        )}
+        <p className='text-center'>
+          {isLogin ? 'Create a new account?' : 'Already have an account?'}
+          <span onClick={toggleForm} className='text-cyan-600 underline cursor-pointer ml-1'>
+            {isLogin ? 'Click here' : 'Login here'}
+          </span>
+        </p>
       </div>
     </form>
   );

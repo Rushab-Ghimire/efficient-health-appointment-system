@@ -12,7 +12,7 @@ const MyAppointments = () => {
   useEffect(() => {
     if (user) {
       setLoading(true);
-      apiClient.get('/appointments/')
+      apiClient.get('/api/appointments/')
         .then(response => {
           setAppointments(response.data);
           setLoading(false);
@@ -33,30 +33,19 @@ const MyAppointments = () => {
         return;
     }
     try {
-      // Step 1: Call our new endpoint to create a session cookie.
-      await apiClient.post('/auth/create-session/');
+      // --- THIS IS THE FIX ---
+      // Add the '/api/' prefix to match your Django URL configuration.
+      await apiClient.post('/api/auth/create-session/');
       
-      // Step 2: Once the session is created, build the full URL to the receipt.
+      // The rest of your logic is perfect.
       const receiptUrl = `http://127.0.0.1:8000/api/receipt/${appointmentId}/`;
-      
-      // Step 3: Open the URL in a new tab. The browser will now send the
-      // session cookie, and Django's @login_required will work!
       window.open(receiptUrl, '_blank', 'noopener,noreferrer');
 
     } catch (error) {
         console.error("Could not create session for receipt view:", error);
         alert("There was an error generating the receipt. Please try again.");
     }
-  };
-
-
-  if (loading) {
-    return <div className='px-10 py-8'>Loading your appointments...</div>;
-  }
-  if (error) {
-    return <div className='px-10 py-8 text-red-500'>{error}</div>;
-  }
-
+};
   return (
     <div className='px-4 sm:px-10 py-8 min-h-screen'>
       <p className='pb-3 mt-12 font-medium text-zinc-700 border-b'>My appointments</p>
