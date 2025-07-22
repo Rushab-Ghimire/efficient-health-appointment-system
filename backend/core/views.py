@@ -257,6 +257,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         )
     
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def custom_login_view(request):
@@ -388,3 +389,35 @@ def recommend_doctor_ai(request):
     except Exception as e:
         print(f"Error in recommend_doctor_ai view: {e}")
         return Response({'error': 'An internal server error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_booked_slots(request):
+    """
+    Retrieves a list of booked time slots for a specific doctor on a given date.
+    """
+    doctor_id = request.query_params.get('doctor_id')
+    date_str = request.query_params.get('date')
+    
+    if not doctor_id or not date_str:
+        return Response({'error': "Both 'doctor_id' and 'date' parameters are required."}, status=400)
+    
+    try:
+        unavailable_statuses = ['scheduled', 'completed']
+        appointments = Appointment.objects.filter(
+            doctor_id=doctor_id,
+            date=date_str, 
+            status__in=unavailable_statuses
+        ).values_list('time', flat=True)
+
+        booked_times = [t.strftime('%H:%M') for t in appointments]
+        
+        print(f"DEBUG: Found booked times for doctor {doctor_id} on {date_str}: {booked_times}")
+        
+        return Response(booked_times)
+
+    except Exception as e:
+        print(f"Error in get_booked_slots: {e}")
+        return Response({'error': 'An internal server error occurred.'}, status=500)

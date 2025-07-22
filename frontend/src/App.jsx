@@ -8,8 +8,6 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute'; // For logged-in users
 import RequireStaff from './components/RequireStaff';   // For staff/admins only
 
-
-// Import all necessary pages
 import Home from './pages/Home';
 import Doctors from './pages/Doctors';
 import Login from './pages/Login';

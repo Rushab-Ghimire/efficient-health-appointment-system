@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet, DoctorViewSet, AppointmentViewSet,
-    get_current_user, recommend_doctor_ai, view_appointment_receipt, create_user_session
+    get_current_user, recommend_doctor_ai, view_appointment_receipt, create_user_session, get_booked_slots
 )
 
 router = DefaultRouter()
@@ -17,6 +17,8 @@ urlpatterns = [
     path('recommend-doctor-ai/', recommend_doctor_ai, name='recommend-doctor-ai'),
     path('receipt/<int:appointment_id>/', view_appointment_receipt, name='view_receipt'),
     path('auth/create-session/', create_user_session, name='create-session'),
+    path('booked-slots/', get_booked_slots, name='get-booked-slots'),
+
 
 
     path('', include(router.urls)),

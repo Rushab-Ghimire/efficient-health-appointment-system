@@ -21,6 +21,8 @@ const Appointment = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [bookedSlots, setBookedSlots] = useState([]);
+
 
     // --- Data Fetching ---
     useEffect(() => {
@@ -39,6 +41,23 @@ const Appointment = () => {
         };
         fetchDoctorDetails();
     }, [docId]);
+
+     useEffect(() => {
+        if (!doctor || !selectedDate) return;
+
+        const fetchBookedSlots = async () => {
+            try {
+                const formattedDate = selectedDate.toISOString().split('T')[0];
+                const response = await apiClient.get(`/api/booked-slots/?doctor_id=${doctor.id}&date=${formattedDate}`);
+                setBookedSlots(response.data);
+            } catch (err) {
+                console.error("Failed to fetch booked slots", err);
+                setBookedSlots([]); // On error, assume no slots are booked
+            }
+        };
+
+        fetchBookedSlots();
+    }, [doctor, selectedDate]);
 
     // --- Event Handlers ---
     const handleBookingSubmit = async () => {
@@ -80,6 +99,43 @@ const Appointment = () => {
             currentTime.setMinutes(currentTime.getMinutes() + 30);
         }
         return slots;
+    };
+
+    // Helper function to check if a time slot is in the past
+    const isTimeSlotInPast = (timeSlot) => {
+        const now = new Date();
+        const today = now.toDateString();
+        const selectedDateStr = selectedDate.toDateString();
+        
+        // If selected date is not today, it's not in the past
+        if (selectedDateStr !== today) {
+            return false;
+        }
+        
+        // If it's today, check if the time has passed
+        const [hours, minutes] = timeSlot.split(':').map(Number);
+        const slotTime = new Date();
+        slotTime.setHours(hours, minutes, 0, 0);
+        
+        return slotTime <= now;
+    };
+
+    // Helper function to check if a time slot is booked
+    const isTimeSlotBooked = (timeSlot) => {
+        // 'bookedSlots' is an array of strings. We just need to check if the
+        // current 'timeSlot' string is present in that array.
+        return bookedSlots.includes(timeSlot);
+    };
+
+    // Helper function to get slot status
+    const getSlotStatus = (timeSlot) => {
+        if (isTimeSlotInPast(timeSlot)) {
+            return 'past';
+        }
+        if (isTimeSlotBooked(timeSlot)) {
+            return 'booked';
+        }
+        return 'available';
     };
     
     // --- Render Logic ---
@@ -137,17 +193,68 @@ const Appointment = () => {
 
                 <div className='mt-6 max-w-sm'>
                     <p className='text-lg font-semibold text-gray-700 mb-2'>2. Select an Available Time:</p>
+                    
+                    {/* Legend */}
+                    <div className='mb-4 flex flex-wrap gap-4 text-sm'>
+                        <div className='flex items-center gap-2'>
+                            <div className='w-4 h-4 bg-indigo-500 rounded'></div>
+                            <span>Available</span>
+                        </div>
+                        <div className='flex items-center gap-2'>
+                            <div className='w-4 h-4 bg-red-400 rounded'></div>
+                            <span>Booked</span>
+                        </div>
+                        <div className='flex items-center gap-2'>
+                            <div className='w-4 h-4 bg-gray-400 rounded'></div>
+                            <span>Past Time</span>
+                        </div>
+                    </div>
+
                     {availableTimeSlots.length > 0 ? (
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
-                            {availableTimeSlots.map((time, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setSelectedTime(time)}
-                                    className={`p-2 border rounded-md text-center transition ${selectedTime === time ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'}`}
-                                >
-                                    {time}
-                                </button>
-                            ))}
+                            {availableTimeSlots.map((time, index) => {
+                                const slotStatus = getSlotStatus(time);
+                                const isUnavailable = slotStatus === 'past' || slotStatus === 'booked';
+                                const isSelected = selectedTime === time;
+                                
+                                let buttonClass = 'p-2 border rounded-md text-center transition text-sm ';
+                                
+                                if (isUnavailable) {
+                                    if (slotStatus === 'past') {
+                                        buttonClass += 'bg-gray-400 text-white cursor-not-allowed opacity-60';
+                                    } else if (slotStatus === 'booked') {
+                                        buttonClass += 'bg-red-400 text-white cursor-not-allowed opacity-80';
+                                    }
+                                } else if (isSelected) {
+                                    buttonClass += 'bg-indigo-500 text-white';
+                                } else {
+                                    buttonClass += 'hover:bg-indigo-100 border-indigo-200';
+                                }
+
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => !isUnavailable && setSelectedTime(time)}
+                                        className={buttonClass}
+                                        disabled={isUnavailable}
+                                        title={
+                                            slotStatus === 'past' 
+                                                ? 'This time slot has passed' 
+                                                : slotStatus === 'booked' 
+                                                    ? 'This time slot is already booked' 
+                                                    : 'Available'
+                                        }
+                                    >
+                                        {time}
+                                        {slotStatus === 'booked' && (
+                                            <div className='text-xs mt-1'>Booked</div>
+                                        )}
+                                        {slotStatus === 'past' && (
+                                            <div className='text-xs mt-1'>Past</div>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
                     ) : (
                         <p className='text-gray-500'>This doctor has not set their available hours.</p>
@@ -169,4 +276,3 @@ const Appointment = () => {
 };
 
 export default Appointment;
-
