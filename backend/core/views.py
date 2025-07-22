@@ -19,6 +19,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from .pinecone_utils import get_doctor_recommendations
 from .models import Doctor 
+from django.utils import timezone 
+from datetime import timedelta # Import timedelta for date calculations
+from django.db.models import Count, Q # <-- Import Q for complex queriesfrom django.utils import timezone
+
+
+
 
 
 
@@ -31,6 +37,35 @@ class IsOwnerOrAdmin(BasePermission):
         # obj is the User instance being requested.
         # request.user is the user making the request (from the token).
         return obj == request.user or request.user.is_staff
+
+
+class IsPatientOwnerOrDoctorOrAdmin(BasePermission):
+    """
+    Custom permission for Appointment objects:
+    - Admins can do anything.
+    - The assigned doctor can do anything (view, update notes, etc.).
+    - The patient who owns the appointment can only view it (safe methods).
+    """
+    def has_object_permission(self, request, view, obj):
+        # The object 'obj' is an Appointment instance.
+        
+        # Rule 1: Admins have full access.
+        if request.user.is_staff:
+            return True
+        
+        # Rule 2: Check if the user is the doctor assigned to this appointment.
+        # This is a safer way to check the relationship.
+        if request.user.role == 'doctor' and obj.doctor.user_id == request.user.id:
+            return True # Doctors get full access (GET, PATCH, PUT, etc.).
+        
+        # Rule 3: Check if the user is the patient who booked this appointment.
+        if request.user.role == 'patient' and obj.patient_id == request.user.id:
+            # Patients are only allowed "safe" methods (GET, HEAD, OPTIONS).
+            # This correctly blocks them from trying to PATCH or DELETE.
+            return request.method in permissions.SAFE_METHODS
+        
+        # If none of the above rules match, deny permission.
+        return False
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -98,6 +133,8 @@ class UserViewSet(viewsets.ModelViewSet):
         # including the new image URL.
         return Response(serializer.data)
 
+
+
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
@@ -127,8 +164,11 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
                 pass
         return queryset
 
+
+
+
 class AppointmentViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsPatientOwnerOrDoctorOrAdmin]
     
     # This serializer is used by default for retrieve, create, update
     serializer_class = AppointmentSerializer
@@ -163,11 +203,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         serializer.save(patient=self.request.user)
         
         
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not instance.is_cancellable: # A simple check
-            return Response({'error': 'This appointment cannot be edited.'}, status=status.HTTP_400_BAD_REQUEST)
-        return super().update(request, *args, **kwargs)
+    # def update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     if not instance.is_cancellable: # A simple check
+    #         return Response({'error': 'This appointment cannot be edited.'}, status=status.HTTP_400_BAD_REQUEST)
+    #     return super().update(request, *args, **kwargs)
     
     @action(detail=True, methods=['post'], url_path='complete')
     def complete_appointment(self, request, pk=None):
@@ -282,7 +322,104 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             {'status': 'Appointment marked as No-Show.'},
             status=status.HTTP_200_OK
         )
-    
+
+# At the top of core/views.py, add these imports
+
+
+
+# ... (all your other views) ...
+
+# ========================================================================
+# DOCTOR DASHBOARD ENDPOINT
+# ========================================================================
+class DoctorDashboardDataView(APIView):
+    """
+    An endpoint that aggregates all necessary data for the doctor's dashboard.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+
+        if user.role != 'doctor':
+            return Response(
+                {"error": "You do not have permission to access this dashboard."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            today = timezone.now().date()
+            next_week = today + timedelta(days=7)
+            
+            # Get today's appointments (can include all statuses for the list)
+            todays_appointments = Appointment.objects.filter(
+                doctor__user=user,
+                date=today
+            ).order_by('time')
+
+            # --- STATS CALCULATION ---
+            
+            # 1. Total unique patients (your logic is perfect)
+            total_patients_count = Appointment.objects.filter(
+                doctor__user=user, status='completed'
+            ).values('patient').distinct().count()
+
+            # 2. Today's SCHEDULED appointments count
+            today_appointments_count = todays_appointments.filter(status='scheduled').count()
+
+            # --- 3. NEW: Appointments This Week count ---
+            appointments_this_week_count = Appointment.objects.filter(
+                doctor__user=user,
+                date__range=[today, next_week],
+                status='scheduled'
+            ).count()
+
+            # --- 4. NEW: Completion Rate calculation ---
+            completed_count = Appointment.objects.filter(doctor__user=user, status='completed').count()
+            no_show_count = Appointment.objects.filter(doctor__user=user, status='no_show').count()
+            total_past_appointments = completed_count + no_show_count
+            
+            completion_rate = int((completed_count / total_past_appointments) * 100) if total_past_appointments > 0 else 100
+
+            # Serialize today's appointments for the list
+            todays_appointments_data = AppointmentListSerializer(todays_appointments, many=True).data
+            
+            # Assemble the final data payload with the new stats
+            dashboard_data = {
+                "doctor_name": user.first_name,
+                "todays_appointments": todays_appointments_data,
+                "stats": {
+                    "total_patients": total_patients_count,
+                    "today_appointments_count": today_appointments_count,
+                    "appointments_this_week": appointments_this_week_count,
+                    "completion_rate_percent": completion_rate,
+                }
+            }
+            
+            return Response(dashboard_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error in DoctorDashboardDataView: {e}")
+            return Response(
+                {"error": "An error occurred while fetching dashboard data."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class DoctorPatientsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if request.user.role != 'doctor':
+            return Response({"error": "Permission denied."}, status=403)
+        
+        patient_ids = Appointment.objects.filter(
+            doctor__user=request.user,
+            status__in=['completed', 'scheduled'] # Show current and past patients
+        ).values_list('patient_id', flat=True).distinct()
+
+        patients = User.objects.filter(id__in=patient_ids)
+        serializer = UserSerializer(patients, many=True)
+        return Response(serializer.data)
 
 
 @api_view(['POST'])

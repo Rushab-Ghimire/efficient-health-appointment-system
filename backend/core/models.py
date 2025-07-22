@@ -50,7 +50,7 @@ class Doctor(models.Model):
         on_delete=models.CASCADE, 
         limit_choices_to={'role': 'doctor'}
     )
-    appointment_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    appointment_fee = models.DecimalField(max_digits=8, decimal_places=2, default=500.00)
     specialization = models.CharField(max_length=100)
     available_from = models.TimeField(default=time(9, 0))  # 9:00 AM
     available_to = models.TimeField(default=time(17, 0))   # 5:00 PM
@@ -58,7 +58,6 @@ class Doctor(models.Model):
     is_active = models.BooleanField(default=True)
     qualification = models.CharField(max_length=255, blank=True, help_text="e.g., MD, MBBS, PhD")
     experience_years = models.PositiveIntegerField(default=0)
-    consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=100.00)
     rating = models.DecimalField(
         max_digits=3, 
         decimal_places=2, 
@@ -99,6 +98,8 @@ class Appointment(models.Model):
     thirty_min_reminder_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    doctor_notes = models.TextField(blank=True, null=True)
+
     
     class Meta:
         #unique_together = ('doctor', 'date', 'time')

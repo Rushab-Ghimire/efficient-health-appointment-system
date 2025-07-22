@@ -125,7 +125,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
     doctor = DoctorSerializer(read_only=True)
     
     doctor_id = serializers.PrimaryKeyRelatedField(
-        queryset=Doctor.objects.filter(is_active=True), 
+        queryset=Doctor.objects.all(), 
         source='doctor', 
         write_only=True
     )
@@ -140,7 +140,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'patient', 'doctor', 'date', 'time', 'status', 
             'qr_code', 'doctor_id', 'created_at', 'updated_at',
-            'is_past', 'is_today', 'is_upcoming'
+            'is_past', 'is_today', 'is_upcoming','doctor_notes'
         )
         read_only_fields = (
             'id', 'patient', 'qr_code', 
@@ -163,56 +163,49 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return time_value
 
     def validate(self, data):
-        """Comprehensive validation for appointments"""
-        doctor = data.get('doctor')
-        date_value = data.get('date')
-        time_value = data.get('time')
-        
-        # Check if all required fields are present
-        if not all([doctor, date_value, time_value]):
-            raise serializers.ValidationError("Doctor, date, and time are required.")
-        
-        # Check for double booking
-        active_statuses = ['scheduled', 'completed']
-        existing_appointment = Appointment.objects.filter(
-            doctor=doctor, 
-            date=date_value, 
-            time=time_value,
-            status__in=active_statuses
-        )
-        
-        # If updating, exclude current appointment
-        if self.instance:
-            existing_appointment = existing_appointment.exclude(pk=self.instance.pk)
-        
-        if existing_appointment.exists():
-            raise serializers.ValidationError(
-                "This time slot is already booked for this doctor."
-            )
-        
-        # Check if time is within doctor's available hours
-        if not (doctor.available_from <= time_value <= doctor.available_to):
-            raise serializers.ValidationError(
-                f"Appointment time must be between {doctor.available_from} "
-                f"and {doctor.available_to} for Dr. {doctor.user.get_full_name()}."
-            )
-        
-        # Check if doctor is active
-        if not doctor.is_active:
-            raise serializers.ValidationError(
-                "This doctor is currently not available for appointments."
-            )
-        
-        # Prevent booking same day appointments in the past
-        if date_value == date.today():
-            from django.utils import timezone
-            if time_value < timezone.now().time():
-                raise serializers.ValidationError(
-                    "Cannot book appointments in the past."
-                )
-        
-        return data
+        """
+        Comprehensive validation that is context-aware.
+        - On CREATE: Validates everything (double-booking, doctor hours, etc.).
+        - On UPDATE (PATCH): Skips these checks, as we are only changing fields
+          like 'status' or 'doctor_notes' that don't cause scheduling conflicts.
+        """
+        # `self.instance` will be `None` only when we are creating a new object (POST).
+        # For updates (PATCH/PUT), `self.instance` will be the existing appointment object.
+        is_creating = self.instance is None
 
+        if is_creating:
+            # --- This logic now runs ONLY when a new appointment is being booked ---
+            
+            # For creation, the doctor, date, and time must come from the input data.
+            doctor = data.get('doctor')
+            date_value = data.get('date')
+            time_value = data.get('time')
+            
+            if not all([doctor, date_value, time_value]):
+                raise serializers.ValidationError("Doctor, date, and time are required to create an appointment.")
+            
+            # Check for double booking
+            active_statuses = ['scheduled', 'completed']
+            if Appointment.objects.filter(
+                doctor=doctor, date=date_value, time=time_value, status__in=active_statuses
+            ).exists():
+                raise serializers.ValidationError("This time slot is already booked for this doctor.")
+            
+            # Check if time is within doctor's available hours
+            if not (doctor.available_from <= time_value <= doctor.available_to):
+                raise serializers.ValidationError(
+                    f"Appointment time is outside of Dr. {doctor.user.get_full_name()}'s available hours."
+                )
+            
+            # Prevent booking same day appointments in the past
+            if date_value == date.today():
+                from django.utils import timezone
+                if time_value < timezone.now().time():
+                    raise serializers.ValidationError("Cannot book same-day appointments in the past.")
+
+        # For both create and update operations, we return the validated data.
+        # For a PATCH update, `data` will only contain the fields being changed.
+        return data
 class AppointmentListSerializer(serializers.ModelSerializer):
     """Simplified serializer for listing appointments"""
     patient_name = serializers.SerializerMethodField()
@@ -223,7 +216,7 @@ class AppointmentListSerializer(serializers.ModelSerializer):
         model = Appointment
         fields = (
             'id', 'patient_name', 'doctor_name', 'specialization',
-            'date', 'time', 'status', 'is_past', 'is_today'
+            'date', 'time', 'status', 'is_past', 'is_today','doctor_notes'
         )
     
     def get_patient_name(self, obj):

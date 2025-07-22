@@ -11,6 +11,9 @@ import StaffLayout from './components/StaffLayout';
 // --- Route Protection Components ---
 import ProtectedRoute from './components/ProtectedRoute';
 import RequireStaff from './components/RequireStaff';
+import DoctorLayout from './components/DoctorLayout';
+import RequireDoctor from './components/RequireDoctor';
+
 
 // --- Page Components ---
 import Home from './pages/Home';
@@ -23,6 +26,10 @@ import MyAppointments from './pages/MyAppointments';
 import Appointment from './pages/Appointment';
 import VerificationPage from './pages/VerificationPage';
 import AIDoctorFinder from './components/AIDoctorFinder';
+import DoctorAppointmentsPage from './pages/DoctorAppointmentsPage';
+import DoctorPatientsPage from './pages/DoctorPatientsPage';
+import DoctorDashboard from './pages/DoctorDashboard';
+
 
 const App = () => {
   const { user } = useContext(AppContext);
@@ -46,6 +53,14 @@ const App = () => {
     // The <Routes> component should be the top-level router component.
     <Routes>
 
+      <Route element={<RequireDoctor />}>
+        <Route path="/doctor-dashboard" element={<DoctorLayout />}>
+          <Route index element={<DoctorDashboard />} /> 
+          <Route path="appointments" element={<DoctorAppointmentsPage />} />
+          <Route path="patients" element={<DoctorPatientsPage />} />
+        </Route>
+      </Route>
+
       {/* --- Group 1: Public & General User Routes --- */}
       {/* All routes inside this group will share the PublicLayout (Navbar & Footer) */}
       <Route path="/" element={<PublicLayout />}>
@@ -67,16 +82,23 @@ const App = () => {
         </Route>
       </Route>
 
-      {/* --- Group 2: Staff-Only Routes --- */}
-      {/* This group is protected by RequireStaff and uses the StaffLayout */}
-      <Route path="/staff" element={<RequireStaff />}>
-        <Route element={<StaffLayout />}>
-          {/* path="verify" combines with the parent "/staff" to become "/staff/verify" */}
-          <Route path="verify" element={<VerificationPage />} />
-          {/* You can add more staff pages like a dashboard here */}
-          {/* <Route path="dashboard" element={<StaffDashboard />} /> */}
+      <Route element={<RequireDoctor />}>
+        <Route path="/doctor-dashboard" element={<DoctorLayout />}>
+          {/* The index route for the doctor dashboard */}
+          <Route index element={<DoctorDashboard />} /> 
+          {/* Add future doctor pages here, e.g., /doctor-dashboard/appointments */}
+          {/* <Route path="appointments" element={<DoctorAppointmentsPage />} /> */}
         </Route>
       </Route>
+
+
+      {/* --- Group 2: Staff-Only Routes --- */}
+      {/* This group is protected by RequireStaff and uses the StaffLayout */}
+     <Route element={<RequireStaff />}> {/* The gatekeeper is the top-level wrapper */}
+        <Route path="/staff" element={<StaffLayout />}> {/* The layout defines the path prefix */}
+          <Route path="verify" element={<VerificationPage />} />
+        </Route>
+    </Route>
 
     </Routes>
   );
