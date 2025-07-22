@@ -11,7 +11,7 @@ from rest_framework.validators import UniqueValidator
 class UserSerializer(serializers.ModelSerializer):
     # This field is only for validating password confirmation during signup/update.
     password_confirm = serializers.CharField(write_only=True, required=False)
-    image = serializers.ImageField(source='doctor.image', read_only=True) # Read the related doctor's image
+    image = serializers.SerializerMethodField()
 
 
     class Meta:
@@ -48,6 +48,21 @@ class UserSerializer(serializers.ModelSerializer):
                 ]
             }
         }
+    def get_image(self, obj):
+        request = self.context.get('request')
+        image_url = None
+
+        # Prioritize the doctor-specific image if it exists
+        if hasattr(obj, 'doctor') and obj.doctor.image:
+            image_url = obj.doctor.image.url
+        # Fall back to the user's own image
+        elif obj.image:
+            image_url = obj.image.url
+        
+        if image_url and request:
+            return request.build_absolute_uri(image_url)
+        
+        return None
 
     def validate(self, data):
         """Check that the two password entries match."""
@@ -233,5 +248,5 @@ class AdminUserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'role', 
             'phone_number', 'temporary_address', 'permanent_address', 
-            'gender', 'date_of_birth', 'is_active', 'is_staff', 'is_superuser'
+            'gender', 'date_of_birth', 'image', 'is_active', 'is_staff', 'is_superuser'
         )

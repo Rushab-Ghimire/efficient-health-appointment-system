@@ -3,6 +3,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AppContext } from '../context/AppContext'; // Make sure this path is correct
+import { assets } from '../assets/assets'; // Import your local assets
+
 
 const Myprofile = () => {
     // Get the globally managed user, token, and the login function (to update state) from the context
@@ -100,6 +102,8 @@ const Myprofile = () => {
 
     // Combine first and last name for display
     const fullName = `${formData.first_name || ''} ${formData.last_name || ''}`.trim();
+    const profileImage = formData.image || assets.default_avatar;
+
 
     // The main JSX, now connected to the dynamic formData state
     return (
@@ -110,7 +114,7 @@ const Myprofile = () => {
 
                 {/* Profile Image & Name */}
                 <div className='flex flex-col items-center'>
-                    <img className='w-36 h-36 object-cover rounded-full shadow-md' src={formData.image || 'https://via.placeholder.com/150'} alt="Profile" />
+                    <img  className='w-28 h-28 rounded-full border-4 border-white shadow-md object-cover object-center' src={profileImage} alt="Profile" />
                     {isEdit && (
                         <div className="mt-2">
                             <label htmlFor="imageUpload" className="cursor-pointer text-blue-600 hover:underline">Change Photo</label>

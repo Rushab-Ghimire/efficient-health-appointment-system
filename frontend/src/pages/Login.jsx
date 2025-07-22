@@ -23,7 +23,7 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const { login } = useContext(AppContext);
   const navigate = useNavigate();
@@ -39,79 +39,76 @@ const Login = () => {
     setFormData(isLogin ? initialFormData : { username: '', password: '' });
   };
 
-// In your Login.jsx component
 
-// In your Login.jsx component
 
-const onSubmitHandler = async (event) => {
+
+  // The final, correct onSubmitHandler for Login.jsx
+  // In Login.jsx
+
+  const onSubmitHandler = async (event) => {
     event.preventDefault();
-    setError('');
     setLoading(true);
+    setError('');
 
     const loginUrl = 'auth/custom-login/';
     const registerUrl = 'api/users/';
 
     try {
-        if (isLogin) {
-            // --- LOGIN LOGIC ---
-            const response = await apiClient.post(loginUrl, {
-                username: formData.username,
-                password: formData.password,
-            });
-            
-            const { token, user } = response.data;
-            
-            // First, update the global context
-            login(token, user);
-            
-            // --- THE FIX: Perform the redirect logic right here ---
-            if (user && (user.role === 'admin' || user.is_staff === true)) {
-                console.log("Redirecting to staff page...");
-                navigate('/staff/verify');
-            } else if (user && user.role === 'doctor') {
-                console.log("Redirecting to doctor dashboard...");
-                navigate('/doctor-dashboard');
-            } else {
-                console.log("Redirecting to user profile...");
-                navigate('/my-profile');
-            }
+      if (isLogin) {
+        // --- LOGIN LOGIC ---
+        const response = await apiClient.post(loginUrl, {
+          username: formData.username,
+          password: formData.password,
+        });
 
-        } else { 
-            // --- SIGN UP LOGIC ---
-            // (Your signup logic can be updated similarly if needed)
-            if (formData.password !== formData.password_confirm) {
-                alert("Passwords do not match!");
-                setLoading(false);
-                return;
-            }
+        const { token, user } = response.data;
 
-            await apiClient.post(registerUrl, { ...formData, role: 'patient' });
+        // --- THIS IS THE KEY ---
+        // We call the context's login function. This saves the data
+        // to localStorage and updates the app's state for future renders.
+        login(token, user);
 
-            const loginResponse = await apiClient.post(loginUrl, {
-                username: formData.username,
-                password: formData.password,
-            });
-            
-            const { token, user } = loginResponse.data;
-            login(token, user);
-            
-            // A new patient always goes to their profile
-            navigate('/my-profile');
+        // --- And THEN we perform the redirect based on the fresh data ---
+        if (user.role === 'admin' || user.is_staff) {
+          navigate('/staff/verify');
+        } else if (user.role === 'doctor') {
+          navigate('/doctor-dashboard');
+        } else {
+          navigate('/');
         }
+
+      } else {
+        // --- SIGN UP LOGIC ---
+        if (formData.password !== formData.password_confirm) {
+          alert("Passwords do not match!");
+          setLoading(false);
+          return;
+        }
+        await apiClient.post(registerUrl, { ...formData, role: 'patient' });
+        const loginResponse = await apiClient.post(loginUrl, {
+          username: formData.username,
+          password: formData.password,
+        });
+
+        const { token, user } = loginResponse.data;
+        login(token, user);
+
+        // A new patient always goes to their profile page
+        navigate('/');
+      }
     } catch (error) {
-        const errorData = error.response?.data;
-        let errorMessage = 'An unexpected error occurred.';
-        if (errorData) {
-            errorMessage = Object.values(errorData).flat().join(' ');
-        }
-        setError(errorMessage);
-        console.error("Login/Signup failed:", error);
+      // ... your error handling is perfect
+      const errorData = error.response?.data;
+      let errorMessage = 'An unexpected error occurred.';
+      if (errorData) {
+        errorMessage = Object.values(errorData).flat().join(' ');
+      }
+      setError(errorMessage);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
-return (
+  };
+  return (
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
       <div className='flex flex-col gap-4 m-auto p-8 min-w-[340px] sm:min-w-[500px] border rounded-xl text-black text-sm shadow-lg bg-white'>
         <p className='text-3xl text-black text-center font-semibold'>{isLogin ? 'Login' : 'Sign Up'}</p>
@@ -149,7 +146,7 @@ return (
                 <input name="last_name" onChange={handleChange} value={formData.last_name} required className='border border-black rounded w-full p-2 mt-1' type='text' />
               </div>
             </div>
-            
+
             {/* Row 2: Email + Phone */}
             <div className='flex flex-col sm:flex-row gap-4 w-full'>
               <div className='sm:w-1/2'>

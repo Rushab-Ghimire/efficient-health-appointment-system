@@ -70,6 +70,33 @@ class UserViewSet(viewsets.ModelViewSet):
         Called when a new user is created. Securely sets the role to 'patient'.
         """
         user = serializer.save(role='patient')
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # --- 1. Handle the image file upload manually ---
+        image_file = request.FILES.get('image')
+        if image_file:
+            # If the user is a doctor, save to the Doctor model's image field
+            if hasattr(instance, 'doctor'):
+                instance.doctor.image = image_file
+                instance.doctor.save()
+            # Otherwise, save to the User model's own image field
+            else:
+                instance.image = image_file
+                # The user instance will be saved by the serializer below
+        
+        # --- 2. Let the serializer handle all the other text-based fields ---
+        # We pass `partial=True` to indicate it's a PATCH request.
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
+        # This calls the serializer's .save() method, which in turn calls .update()
+        self.perform_update(serializer)
+
+        # The serializer.data will now contain the updated user info,
+        # including the new image URL.
+        return Response(serializer.data)
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DoctorSerializer
