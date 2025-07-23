@@ -21,7 +21,7 @@ import { FiMenu, FiX } from 'react-icons/fi';
 // --- [CHANGED] Expanded the internal paths data with more wards ---
 const internalPaths = {
   "Building 1": {
-    "Cardiology Dept (2nd Floor)": [
+    "Cardiology": [
       { type: 'straight', text: 'Enter the main lobby.' },
       { type: 'elevator', text: 'Take the elevator to the 2nd Floor.' },
       { type: 'left', text: 'Turn left and follow the blue line on the floor.' },
@@ -59,10 +59,10 @@ const internalPaths = {
       { type: 'ward', text: 'Radiology reception is through the double doors.' }
     ],
     "Oncology Clinic (3rd Floor)": [
-        { type: 'straight', text: 'Enter and proceed to the central elevators.' },
-        { type: 'elevator', text: 'Take the elevator to the 3rd Floor.' },
-        { type: 'right', text: 'Turn right; follow the hallway to the west wing.' },
-        { type: 'ward', text: 'Oncology Clinic is at the end of the hall.' }
+      { type: 'straight', text: 'Enter and proceed to the central elevators.' },
+      { type: 'elevator', text: 'Take the elevator to the 3rd Floor.' },
+      { type: 'right', text: 'Turn right; follow the hallway to the west wing.' },
+      { type: 'ward', text: 'Oncology Clinic is at the end of the hall.' }
     ],
   },
   "Building 3": {
@@ -118,7 +118,7 @@ const InternalPathVisualizer = ({ pathSteps }) => {
 };
 
 // --- [CHANGED] The DirectionsSidebar component has new state and logic ---
-const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationChange, buildingNames, distance, onClose }) => {
+const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationChange, buildingNames, distance, onClose, initialWard }) => {
   const [availableWards, setAvailableWards] = useState([]);
   const [selectedWardPath, setSelectedWardPath] = useState(null);
   const navigate = useNavigate();
@@ -158,18 +158,18 @@ const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationC
     ];
   };
   const steps = getDynamicSteps();
-  
+
   return (
     <div className="w-full max-w-md bg-white shadow-2xl flex flex-col h-full">
       <div className="p-4 border-b flex justify-between items-center">
         <div><h1 className="text-xl font-bold text-gray-800">Hospital Navigator</h1><p className="text-sm text-gray-500">Select a start and end point.</p></div>
 
-        <button 
-            onClick={() => navigate('/')} // On click, navigate to the homepage
-            className="absolute top-5 right-5 z-[1000] bg-cyan-500 text-white font-bold py-3 px-6 rounded-full shadow-xl hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
-          >
-            Exit Navigator
-          </button>
+        <button
+          onClick={() => navigate('/')} // On click, navigate to the homepage
+          className="absolute top-5 right-5 z-[1000] bg-cyan-500 text-white font-bold py-3 px-6 rounded-full shadow-xl hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
+        >
+          Exit Navigator
+        </button>
 
         <button onClick={onClose} className="p-2 text-gray-500 hover:text-gray-800" aria-label="Close sidebar"><FiX size={24} /></button>
       </div>
@@ -183,13 +183,13 @@ const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationC
           <select id="destination-select" value={destination || ''} onChange={(e) => onDestinationChange(e.target.value || null)} className="w-full border rounded p-2 bg-white" disabled={!source}><option value="">-- Select Destination --</option>{buildingNames.map((name, i) => (source !== name && <option key={`dest-${i}`} value={name}>{name}</option>))}</select>
         </div>
       </div>
-      
+
       <div className="flex-grow overflow-y-auto">
         {destination && source ? (
           <div>
             <div className="px-4 py-3 border-b"><div className="flex items-center justify-between"><div><p className="text-2xl font-bold text-blue-700">~{estimatedTime} min <span className="text-lg text-gray-500 font-medium">({distance} km)</span></p><p className="text-sm text-green-600 font-medium">Fastest route available</p></div><div className="flex space-x-4"><IoShareOutline size={22} className="text-blue-600 cursor-pointer" /><IoPrintOutline size={22} className="text-blue-600 cursor-pointer" /></div></div></div>
             <ul className="divide-y divide-gray-200">{steps.map((step, index) => (<li key={index} className="flex items-center p-4"><div className="mr-4"><DirectionIcon type={step.type} /></div><p className="text-base text-gray-800 font-medium">{step.instruction}</p></li>))}</ul>
-            
+
             {/* --- [NEW] Section for selecting a ward --- */}
             {availableWards.length > 0 && (
               <div className="border-t-2 border-dashed border-gray-300 mt-2 p-4">
@@ -211,7 +211,7 @@ const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationC
             {/* --- [CHANGED] This now only shows AFTER a ward is selected --- */}
             {selectedWardPath && (
               <div className="border-t border-gray-300 mt-2">
-                <h3 className="text-md font-bold text-gray-800 p-4 pb-0">Directions to: <br/> <span className="text-blue-600">{selectedWardPath.name}</span></h3>
+                <h3 className="text-md font-bold text-gray-800 p-4 pb-0">Directions to: <br /> <span className="text-blue-600">{selectedWardPath.name}</span></h3>
                 <InternalPathVisualizer pathSteps={selectedWardPath.steps} />
               </div>
             )}
@@ -250,13 +250,13 @@ const HospitalMap = () => {
   };
 
   const buildingFeatures = hospitalPaths.features.filter(f => buildingNames.includes(f.properties.name));
-  
+
   const activePath = hospitalPaths.features.find(f => {
     const forward = f.properties.source === sourcePoint && f.properties.destination === destinationPoint;
     const reverse = f.properties.source === destinationPoint && f.properties.destination === sourcePoint;
     return forward || reverse;
   });
-  
+
   const currentDistance = activePath ? calculateDistance(activePath.geometry.coordinates.map(([lng, lat]) => [lat, lng])) : '0.00';
 
   return (
@@ -265,7 +265,7 @@ const HospitalMap = () => {
         <DirectionsSidebar
           source={sourcePoint}
           destination={destinationPoint}
-          initialWard={initialWard} 
+          initialWard={initialWard}
           onSourceChange={(value) => { setSourcePoint(value); setDestinationPoint(null); }}
           onDestinationChange={setDestinationPoint}
           buildingNames={buildingNames}
@@ -277,12 +277,12 @@ const HospitalMap = () => {
         <div className="relative h-full w-full">
           {!isSidebarOpen && (<button onClick={() => setIsSidebarOpen(true)} className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded-md shadow-lg text-gray-700 hover:bg-gray-100 transition" aria-label="Open sidebar"><FiMenu size={24} /></button>)}
 
-           
-          
+
+
           <MapContainer center={center} zoom={18} scrollWheelZoom={true} className="h-full w-full" zoomControl={false}>
             <ZoomControl position="topright" />
             <TileLayer attribution='© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            
+
             {buildingFeatures.map((feature, index) => (
               <Polyline key={`bldg-${index}`} positions={feature.geometry.coordinates.map(([lng, lat]) => [lat, lng])} pathOptions={{ color: '#2b6cb0', weight: 4, opacity: 0.9 }}>
                 <Tooltip permanent>{feature.properties.name}</Tooltip>

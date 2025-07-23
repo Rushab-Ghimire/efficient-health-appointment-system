@@ -1,47 +1,56 @@
-/* src/index.css */
+@import "tailwindcss";
 
-/* --- 1. Import the Google Fonts --- */
-/* We're importing 'Poppins' for a clean, modern look similar to your screenshot. */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- 2. Import Tailwind's base styles, components, and utilities --- */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* --- 3. Base Styles for the entire application --- */
+/* --- Section 2: Base Layer Customizations --- */
+/*
+ * Use the @layer base directive to add or override base styles.
+ * This is the correct place for global styles, font imports, and resets.
+*/
 @layer base {
-  /* Apply a default font and anti-aliasing for smoother text */
+  /*
+   * CORRECT PLACEMENT for Google Fonts import.
+  */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+  /*
+   * Apply a default font, text smoothing, and other body-level styles.
+  */
   body {
     font-family: 'Poppins', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* Prevents unwanted horizontal scrollbars */
   }
 
-  /* Ensure the app takes up the full height of the viewport */
+  /*
+   * Ensure the root of your app takes up the full viewport height.
+  */
   html, body, #root {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
   }
-}
 
-/* --- 4. Custom Utility Classes (optional but good practice) --- */
-@layer components {
-  /* You can add custom reusable component styles here if you want */
-  .main-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  /*
+   * A global utility to hide scrollbars for a cleaner design.
+  */
+  ::-webkit-scrollbar {
+    @apply hidden;
   }
 }
 
-/* --- 5. Global overrides and utility fixes --- */
-/* Hide scrollbars for a cleaner look */
-::-webkit-scrollbar {
-    @apply hidden;
-}
 
-/* Fix for potential horizontal overflow on small screens */
-body {
-    overflow-x: hidden;
+/* --- Section 3: Component Layer Customizations --- */
+/*
+ * Use the @layer components directive to create your own reusable
+ * component classes. These are classes you can apply in your HTML/JSX.
+*/
+@layer components {
+  /*
+   * A custom container class for consistent content width and padding.
+  */
+  .main-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 }

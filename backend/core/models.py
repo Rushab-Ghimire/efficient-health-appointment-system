@@ -45,6 +45,14 @@ class User(AbstractUser):
         return f"{self.get_full_name()} ({self.role})"
 
 class Doctor(models.Model):
+
+    BUILDING_CHOICES = (
+        ('Building 1', 'Building 1'),
+        ('Building 2', 'Building 2'),
+        ('Building 3', 'Building 3'),
+        ('Hospital Pharmacy', 'Hospital Pharmacy'),
+        
+    )
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE, 
@@ -55,6 +63,7 @@ class Doctor(models.Model):
     available_from = models.TimeField(default=time(9, 0))  # 9:00 AM
     available_to = models.TimeField(default=time(17, 0))   # 5:00 PM
     image = models.ImageField(upload_to='doctors/', null=True, blank=True)
+    building = models.CharField(max_length=50, choices=BUILDING_CHOICES, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     qualification = models.CharField(max_length=255, blank=True, help_text="e.g., MD, MBBS, PhD")
     experience_years = models.PositiveIntegerField(default=0)

@@ -101,7 +101,7 @@ class DoctorSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = (
             'id', 'user', 'full_name', 'specialization','appointment_fee',
-            'available_from', 'available_to', 'image', 'is_active'
+            'available_from', 'available_to', 'image', 'is_active','building'
         )
 
     def get_full_name(self, obj):
@@ -211,12 +211,17 @@ class AppointmentListSerializer(serializers.ModelSerializer):
     patient_name = serializers.SerializerMethodField()
     doctor_name = serializers.SerializerMethodField()
     specialization = serializers.SerializerMethodField()
+    doctor_building = serializers.CharField(source='doctor.building', read_only=True, allow_null=True)
+
+    is_past = serializers.ReadOnlyField()
+    is_today = serializers.ReadOnlyField()
+
     
     class Meta:
         model = Appointment
         fields = (
             'id', 'patient_name', 'doctor_name', 'specialization',
-            'date', 'time', 'status', 'is_past', 'is_today','doctor_notes'
+            'date', 'time', 'status', 'is_past', 'is_today','doctor_notes','doctor_building'
         )
     
     def get_patient_name(self, obj):

@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import apiClient from '../api';
+import { Link } from 'react-router-dom'; // <-- ADD THIS LINE
+
 
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -76,7 +78,16 @@ const MyAppointments = () => {
                 >
                   View Receipt
                 </button>
-                
+
+                 {/* This button only appears if the appointment is 'scheduled' and not in the past */}
+                  {appointment.status === 'scheduled' && !appointment.is_past && (
+                      <Link 
+                          to={`/map?start=Main%20Gate&destination=${encodeURIComponent(appointment.doctor_building)}&ward=${encodeURIComponent(appointment.specialization)}`}
+                          className='text-sm text-stone-600 font-medium text-center sm:min-w-48 py-2 px-4 border border-gray-300 rounded-md bg-blue-100 hover:bg-blue-500 hover:text-white transition-all duration-300'
+                    >
+                        Navigate to Appointment
+                    </Link>
+                  )}               
                 
               </div>
             </div>
