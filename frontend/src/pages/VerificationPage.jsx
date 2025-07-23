@@ -144,17 +144,7 @@ const VerificationPage = () => {
               
             </div>
             
-            {/* --- QR Code Display --- */}
-            {appointmentDetails.qr_code && (
-              <div className="text-center mt-6">
-                <p className="font-semibold text-gray-700 mb-2">QR Code:</p>
-                <img
-                  src={appointmentDetails.qr_code}
-                  alt="Appointment QR Code"
-                  className="mx-auto border-4 border-gray-300 rounded-lg p-1 w-40 h-40"
-                />
-              </div>
-            )}
+      
 
             {/* --- Check-In Button --- */}
             {appointmentDetails.status === 'scheduled' && (

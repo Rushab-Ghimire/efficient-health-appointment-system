@@ -29,6 +29,8 @@ import AIDoctorFinder from './components/AIDoctorFinder';
 import DoctorAppointmentsPage from './pages/DoctorAppointmentsPage';
 import DoctorPatientsPage from './pages/DoctorPatientsPage';
 import DoctorDashboard from './pages/DoctorDashboard';
+import MapPage from './pages/map/src/MapPage'; 
+
 
 
 const App = () => {
@@ -81,6 +83,9 @@ const App = () => {
           <Route path="appointment/:docId" element={<Appointment />} />
         </Route>
       </Route>
+      
+      <Route path="map" element={<MapPage />} />
+
 
       <Route element={<RequireDoctor />}>
         <Route path="/doctor-dashboard" element={<DoctorLayout />}>

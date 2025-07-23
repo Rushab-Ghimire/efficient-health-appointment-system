@@ -183,9 +183,9 @@ const Login = () => {
                   className='border border-black rounded w-full p-2 mt-1 bg-white'
                 >
                   <option value="">Select</option>
-                  <option value="male">Male</option>   {/* CORRECTED: lowercase */}
-                  <option value="female">Female</option> {/* CORRECTED: lowercase */}
-                  <option value="other">Other</option>   {/* CORRECTED: lowercase */}
+                  <option value="male">Male</option>  
+                  <option value="female">Female</option> 
+                  <option value="other">Other</option>   
                 </select>
               </div>
               <div className='sm:w-1/2'>

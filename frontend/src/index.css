@@ -1,20 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-@import "tailwindcss";
+/* src/index.css */
 
-*{
-    font-family:Oufit;
+/* --- 1. Import the Google Fonts --- */
+/* We're importing 'Poppins' for a clean, modern look similar to your screenshot. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- 2. Import Tailwind's base styles, components, and utilities --- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- 3. Base Styles for the entire application --- */
+@layer base {
+  /* Apply a default font and anti-aliasing for smoother text */
+  body {
+    font-family: 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ensure the app takes up the full height of the viewport */
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 }
 
-.active hr{
-    @apply block
+/* --- 4. Custom Utility Classes (optional but good practice) --- */
+@layer components {
+  /* You can add custom reusable component styles here if you want */
+  .main-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 }
 
-::-webkit-scrollbar{
-    @apply hidden
+/* --- 5. Global overrides and utility fixes --- */
+/* Hide scrollbars for a cleaner look */
+::-webkit-scrollbar {
+    @apply hidden;
 }
 
-@media(max-width:740px) {
-    .active p{
-        @apply text-white bg-blue-500
-    }
+/* Fix for potential horizontal overflow on small screens */
+body {
+    overflow-x: hidden;
 }
