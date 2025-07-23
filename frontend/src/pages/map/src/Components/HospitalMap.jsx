@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react'; // useEffect is needed for the new logic
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, Tooltip, ZoomControl } from 'react-leaflet';
 import hospitalPaths from '../Data/Hospitalpaths';
 import 'leaflet/dist/leaflet.css';
 import AnimatedPath from './AnimatedPath';
 
-import { useNavigate } from 'react-router-dom'; // <-- 1. IMPORT useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { useSearchParams } from 'react-router-dom';
 
 
