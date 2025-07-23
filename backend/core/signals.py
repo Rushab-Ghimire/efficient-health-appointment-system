@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from .models import User, Doctor, Appointment 
 
 # --- Import your Twilio utility and the new Pinecone utilities ---
-from .utils import send_twilio_sms 
+from .utils import send_infobip_sms
 from .pinecone_utils import upsert_doctor, delete_doctor
 
 # ========================================================================
@@ -14,9 +14,7 @@ from .pinecone_utils import upsert_doctor, delete_doctor
 
 @receiver(post_save, sender=Appointment)
 def send_appointment_confirmation_sms(sender, instance: Appointment, created: bool, **kwargs):
-    """
-    Sends a confirmation SMS via Twilio when a new appointment is created.
-    """
+   
     if created:
         patient = instance.patient
         if patient.phone_number:
@@ -24,8 +22,8 @@ def send_appointment_confirmation_sms(sender, instance: Appointment, created: bo
                 f"Dear {patient.first_name}, your appointment with Dr. {instance.doctor.user.get_full_name()} "
                 f"is confirmed for {instance.date} at {instance.time.strftime('%I:%M %p')}."
             )
-            # Call the correct Twilio function
-            send_twilio_sms(patient.phone_number, message)
+          
+            send_infobip_sms(patient.phone_number, message)
 
 
 @receiver(pre_save, sender=Appointment)

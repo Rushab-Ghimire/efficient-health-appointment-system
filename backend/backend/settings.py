@@ -129,13 +129,13 @@ AUTH_USER_MODEL = 'core.User'
 
 # --- Twilio SMS Configuration ---
 # Read credentials securely from the .env file
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+# TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+# TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+# TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
-# INFOBIP_BASE_URL = os.getenv('INFOBIP_BASE_URL')
-# INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
-# INFOBIP_SENDER_ID = os.getenv('INFOBIP_SENDER_ID')
+INFOBIP_BASE_URL = os.getenv('INFOBIP_BASE_URL')
+INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
+INFOBIP_SENDER_ID = os.getenv('INFOBIP_SENDER_ID')
 
 
 # ========================================================================
