@@ -29,7 +29,7 @@ import AIDoctorFinder from './components/AIDoctorFinder';
 import DoctorAppointmentsPage from './pages/DoctorAppointmentsPage';
 import DoctorPatientsPage from './pages/DoctorPatientsPage';
 import DoctorDashboard from './pages/DoctorDashboard';
-import MapPage from './pages/map/src/MapPage'; 
+import MapPage from './pages/map/src/MapPage';
 
 
 
@@ -46,7 +46,7 @@ const App = () => {
       } else if (user.role === 'doctor') {
         navigate('/doctor-dashboard');
       } else { // patient
-        navigate('/my-profile');
+        navigate('/');
       }
     }
   }, [user, navigate, location]);
@@ -57,7 +57,7 @@ const App = () => {
 
       <Route element={<RequireDoctor />}>
         <Route path="/doctor-dashboard" element={<DoctorLayout />}>
-          <Route index element={<DoctorDashboard />} /> 
+          <Route index element={<DoctorDashboard />} />
           <Route path="appointments" element={<DoctorAppointmentsPage />} />
           <Route path="patients" element={<DoctorPatientsPage />} />
         </Route>
@@ -83,14 +83,14 @@ const App = () => {
           <Route path="appointment/:docId" element={<Appointment />} />
         </Route>
       </Route>
-      
+
       <Route path="map" element={<MapPage />} />
 
 
       <Route element={<RequireDoctor />}>
         <Route path="/doctor-dashboard" element={<DoctorLayout />}>
           {/* The index route for the doctor dashboard */}
-          <Route index element={<DoctorDashboard />} /> 
+          <Route index element={<DoctorDashboard />} />
           {/* Add future doctor pages here, e.g., /doctor-dashboard/appointments */}
           {/* <Route path="appointments" element={<DoctorAppointmentsPage />} /> */}
         </Route>
@@ -99,11 +99,11 @@ const App = () => {
 
       {/* --- Group 2: Staff-Only Routes --- */}
       {/* This group is protected by RequireStaff and uses the StaffLayout */}
-     <Route element={<RequireStaff />}> {/* The gatekeeper is the top-level wrapper */}
+      <Route element={<RequireStaff />}> {/* The gatekeeper is the top-level wrapper */}
         <Route path="/staff" element={<StaffLayout />}> {/* The layout defines the path prefix */}
           <Route path="verify" element={<VerificationPage />} />
         </Route>
-    </Route>
+      </Route>
 
     </Routes>
   );
