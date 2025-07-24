@@ -54,14 +54,17 @@ const Doctors = () => {
                                     className='bg-white border border-blue-100 rounded-2xl shadow-md ...' // your styles
                                     key={doctor.id}
                                 >
-                                    <div className='w-full aspect-[4/3] bg-blue-50 overflow-hidden'>
-                                        <img
-                                            className='w-full h-full object-cover ...' // your styles
-                                            src={imageUrl}
-                                            alt={`Dr. ${doctor.full_name}`}
-                                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x225?text=No+Image'; }}
-                                        />
-                                    </div>
+                                    
+                                <div className='aspect-[4/3] w-full bg-blue-50'>
+                                    <img
+                                        className='w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300'                                // --- CHANGE 4: Use `doctor.image` ---
+                                        src={doctor.image}
+                                        // --- CHANGE 5: Use `doctor.full_name` for alt text ---
+                                        alt={doctor.full_name}
+                                    />
+                                </div>
+
+
                                     <div className='p-4 space-y-1'>
                                         <div className='flex items-center ...'> {/* your styles */}
                                             <span className='w-2 h-2 bg-green-500 rounded-full'></span>

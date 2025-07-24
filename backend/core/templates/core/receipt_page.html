@@ -5,37 +5,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Receipt - ID {{ appointment.id }}</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; }
-        .receipt-container { max-width: 600px; margin: 20px auto; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        .details-table { width: 100%; }
-        .details-table td { padding: 10px 0; vertical-align: top; }
-        .details-table td:first-child { font-weight: bold; color: #555; width: 150px; }
-        .qr-code { text-align: center; margin-top: 30px; }
-        .qr-code img { max-width: 200px; border: 1px solid #eee; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #2d3748;
+        }
+        
+        .receipt-container { 
+            max-width: 700px; 
+            margin: 0 auto; 
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom: 3px solid #2d3748;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 { 
+            font-size: 28px; 
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .appointment-id {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 400;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-section {
+            margin-bottom: 35px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+        
+        .section-header {
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 20px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section-content {
+            padding: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+        
+        .single-column {
+            grid-template-columns: 1fr;
+        }
+        
+        .fee-highlight {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        
+        .qr-section {
+            background: #f7fafc;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .qr-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .qr-code img {
+            max-width: 120px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: #a0aec0;
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .receipt-container {
+                box-shadow: none;
+                border: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="receipt-container">
-        <h1>Appointment Confirmation</h1>
+        <!-- Header -->
+        <div class="header">
+            <h1>Appointment Receipt</h1>
+            <div class="appointment-id">Receipt No: APT-{{ appointment.id }}</div>
+        </div>
         
-        <table class="details-table">
+        <div class="content">
+            <!-- Patient Information -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-title">Patient Information</div>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ appointment.patient.get_full_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">{{ appointment.patient.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">{{ appointment.patient.phone_number }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Address</div>
+                            <div class="info-value">{{ appointment.patient.permanent_address }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <tr><td>Patient Name:</td><td>{{ appointment.patient.get_full_name }}</td></tr>
-            <tr><td>Email:</td><td>{{ appointment.patient.email }}</td></tr>
-            <tr><td>Phone Number:</td><td>{{ appointment.patient.phone_number }}</td></tr>
-            <tr><td>Address:</td><td>{{ appointment.patient.permanent_address }}</td></tr>
-            <tr><td>Doctor:</td><td>Dr. {{ appointment.doctor.user.get_full_name }}</td></tr>
-            <tr><td>Specialization:</td><td>{{ appointment.doctor.specialization }}</td></tr>
-            <tr><td>Date:</td><td>{{ appointment.date|date:"F d, Y" }}</td></tr>
-            <tr><td>Time:</td><td>{{ appointment.time|time:"h:i A" }}</td></tr>
-            <tr><td>Appointment Fee:</td><td>Rs. {{ appointment.doctor.appointment_fee|floatformat:2 }}</td></tr>
-        </table>
-
-        <div class="qr-code">
-            <h3>Scan for Details</h3>
-            <!-- This will display the actual QR code image -->
+            <!-- Doctor Information -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-title">Healthcare Provider</div>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Doctor Name</div>
+                            <div class="info-value">Dr. {{ appointment.doctor.user.get_full_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Specialization</div>
+                            <div class="info-value">{{ appointment.doctor.specialization }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appointment Details -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-title">Appointment Details</div>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">{{ appointment.date|date:"F d, Y" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Time</div>
+                            <div class="info-value">{{ appointment.time|time:"h:i A" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-title">Payment Summary</div>
+                </div>
+                <div class="section-content">
+                    <div class="fee-highlight">
+                        Consultation Fee: Rs. {{ appointment.doctor.appointment_fee|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR Code Section -->
+        <div class="qr-section">
+            <div class="qr-title">Digital Verification</div>
             <img src="{{ appointment.qr_code.url }}" alt="Appointment QR Code">
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div>Please arrive 15 minutes before your scheduled appointment time</div>
+            <div>For any inquiries, please contact our support team</div>
         </div>
     </div>
 </body>
