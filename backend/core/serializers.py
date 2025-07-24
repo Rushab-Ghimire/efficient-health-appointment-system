@@ -162,49 +162,44 @@ class AppointmentSerializer(serializers.ModelSerializer):
             )
         return time_value
 
+   # In core/serializers.py, inside the AppointmentSerializer class
+
+# ... (keep your Meta class and validate_date/validate_time methods) ...
+
     def validate(self, data):
         """
-        Comprehensive validation that is context-aware.
-        - On CREATE: Validates everything (double-booking, doctor hours, etc.).
-        - On UPDATE (PATCH): Skips these checks, as we are only changing fields
-          like 'status' or 'doctor_notes' that don't cause scheduling conflicts.
+        This method integrates the model's `clean()` method into the serializer's
+        validation process, making it the single source of truth for business rules.
         """
-        # `self.instance` will be `None` only when we are creating a new object (POST).
-        # For updates (PATCH/PUT), `self.instance` will be the existing appointment object.
-        is_creating = self.instance is None
+        # If this is an update request just to add notes, we can skip the complex validation.
+        if self.instance and 'doctor_notes' in data and len(data) == 1:
+            return data
 
-        if is_creating:
-            # --- This logic now runs ONLY when a new appointment is being booked ---
-            
-            # For creation, the doctor, date, and time must come from the input data.
-            doctor = data.get('doctor')
-            date_value = data.get('date')
-            time_value = data.get('time')
-            
-            if not all([doctor, date_value, time_value]):
-                raise serializers.ValidationError("Doctor, date, and time are required to create an appointment.")
-            
-            # Check for double booking
-            active_statuses = ['scheduled', 'completed']
-            if Appointment.objects.filter(
-                doctor=doctor, date=date_value, time=time_value, status__in=active_statuses
-            ).exists():
-                raise serializers.ValidationError("This time slot is already booked for this doctor.")
-            
-            # Check if time is within doctor's available hours
-            if not (doctor.available_from <= time_value <= doctor.available_to):
-                raise serializers.ValidationError(
-                    f"Appointment time is outside of Dr. {doctor.user.get_full_name()}'s available hours."
-                )
-            
-            # Prevent booking same day appointments in the past
-            if date_value == date.today():
-                from django.utils import timezone
-                if time_value < timezone.now().time():
-                    raise serializers.ValidationError("Cannot book same-day appointments in the past.")
+        # Create a temporary, in-memory instance of the Appointment model.
+        # We start with the existing instance's data (if updating) and override
+        # it with the new data from the request.
+        instance = Appointment(**{**self.instance.__dict__, **data}) if self.instance else Appointment(**data)
 
-        # For both create and update operations, we return the validated data.
-        # For a PATCH update, `data` will only contain the fields being changed.
+        # The model's `clean()` method needs the patient to run its checks.
+        # For new appointments, the patient is not in the `data`, so we must get it
+        # from the request context that the view provides to the serializer.
+        if not self.instance: # This is a new appointment being created.
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                instance.patient = request.user
+            else:
+                # This should not happen if permissions are set up correctly.
+                raise serializers.ValidationError("Authentication error: Cannot determine patient.")
+
+        try:
+            # This is the key step: run all the validation rules from your model's clean() method.
+            # This will check for same-day duplicates, booking in the past, etc.
+            instance.clean()
+        except ValidationError as e:
+            # Convert Django's ValidationError into a DRF-friendly format.
+            # This ensures the front-end receives a clean JSON error response.
+            raise serializers.ValidationError(e.message_dict if hasattr(e, 'message_dict') else e.messages)
+
         return data
 class AppointmentListSerializer(serializers.ModelSerializer):
     """Simplified serializer for listing appointments"""

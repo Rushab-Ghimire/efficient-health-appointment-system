@@ -18,8 +18,7 @@ const DoctorSidebar = () => {
             <div className="p-6 text-2xl font-bold border-b text-blue-700 flex items-center gap-2">
                 <span className="text-3xl">🩺</span> Smart Health
             </div>
-            <nav className="flex-grow p-4 space-y-2">
-                <NavLink to="/doctor-dashboard" end className={({ isActive }) => `flex items-center gap-3 px-4 py-2 rounded-lg transition ${isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <nav className="flex-grow p-4 space-y-2">                <NavLink to="/doctor-dashboard" end className={({ isActive }) => `flex items-center gap-3 px-4 py-2 rounded-lg transition ${isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
                     <LayoutDashboard size={20} /> Dashboard
                 </NavLink>
                 <NavLink to="/doctor-dashboard/appointments" className={({ isActive }) => `flex items-center gap-3 px-4 py-2 rounded-lg transition ${isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>

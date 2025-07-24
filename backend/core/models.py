@@ -114,48 +114,77 @@ class Appointment(models.Model):
         #unique_together = ('doctor', 'date', 'time')
         ordering = ['date', 'time']
 
+    # In core/models.py, inside the Appointment class
+
     def clean(self):
+        # This entire block of validation should ONLY run when creating a NEW appointment.
+        # When updating an existing one (e.g., adding notes via the admin), this logic is skipped.
         if self.pk is None:
-        # Prevent booking in the past
+            # Prevent booking in the past
             if self.date < date.today():
                 raise ValidationError("Cannot book appointments in the past.")
         
-        # Prevent booking on the same day if time has passed
             if self.date == date.today() and self.time < timezone.now().time():
                 raise ValidationError("Cannot book appointments in the past.")
-        
-        # Check for double booking
-        active_statuses = ['scheduled', 'completed']
-        if Appointment.objects.filter(
-            doctor=self.doctor, 
-            date=self.date, 
-            time=self.time,
-            status__in=active_statuses
-        ).exclude(pk=self.pk).exists():
-            raise ValidationError("This doctor is already booked for this time slot.")
-        
-        # Ensure the appointment is within the doctor's available hours
-        if not (self.doctor.available_from <= self.time <= self.doctor.available_to):
-            raise ValidationError(
-                f"Appointment time is outside of Dr. {self.doctor.user.first_name}'s "
-                f"available hours ({self.doctor.available_from} - {self.doctor.available_to})."
+
+            # Check if the patient already has an appointment with this doctor on the same day
+            existing_appointment_on_day = Appointment.objects.filter(
+                patient=self.patient,
+                doctor=self.doctor,
+                date=self.date,
+                status__in=['scheduled', 'completed']
             )
+            if existing_appointment_on_day.exists():
+                raise ValidationError(
+                    f"You already have an appointment scheduled with Dr. {self.doctor.user.get_full_name()} on {self.date.strftime('%B %d, %Y')}. "
+                    "A patient can only have one appointment per doctor per day."
+                )
+
+            # Check if the patient is already booked at this exact time with another doctor
+            patient_time_conflicts = Appointment.objects.filter(
+                patient=self.patient,
+                date=self.date,
+                time=self.time,
+                status__in=['scheduled', 'completed']
+            ).exclude(pk=self.pk)
+            if patient_time_conflicts.exists():
+                conflicting_appointment = patient_time_conflicts.first()
+                raise ValidationError(
+                    f"You already have an appointment scheduled at {self.time.strftime('%I:%M %p')} "
+                    f"on {self.date.strftime('%B %d, %Y')} with Dr. {conflicting_appointment.doctor.user.get_full_name()}. "
+                    f"Please choose a different time slot."
+                )
+                
+            # Check for doctor double booking at this exact time
+            active_statuses = ['scheduled', 'completed']
+            if Appointment.objects.filter(
+                doctor=self.doctor, 
+                date=self.date, 
+                time=self.time,
+                status__in=active_statuses
+            ).exclude(pk=self.pk).exists():
+                raise ValidationError("This doctor is already booked for this time slot.")
+            
+            # Ensure the appointment is within the doctor's available hours
+            if not (self.doctor.available_from <= self.time <= self.doctor.available_to):
+                raise ValidationError(
+                    f"Appointment time is outside of Dr. {self.doctor.user.first_name}'s "
+                    f"available hours ({self.doctor.available_from} - {self.doctor.available_to})."
+                )
+            
+            # Check if doctor is active
+            if not self.doctor.is_active:
+                raise ValidationError("This doctor is currently not available for appointments.")
+            
         
-        # Check if doctor is active
-        if not self.doctor.is_active:
-            raise ValidationError("This doctor is currently not available for appointments.")
-        
-        active_statuses = ['scheduled', 'completed']
-        if Appointment.objects.filter(
-            doctor=self.doctor, 
-            date=self.date, 
-            time=self.time,
-            status__in=active_statuses 
-        ).exclude(pk=self.pk).exists():
-            raise ValidationError("This doctor is already booked for this time slot.")
 
     def save(self, *args, **kwargs):
-        self.clean()
+        # Only run the full validation suite when the appointment is first created.
+        # We do NOT want to run all these checks when just updating the status.
+        if self.pk is None:
+            self.clean()
+
+        # The rest of your save logic remains the same.
         is_new = self.pk is None 
         super().save(*args, **kwargs)
         

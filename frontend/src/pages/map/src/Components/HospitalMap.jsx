@@ -165,7 +165,7 @@ const DirectionsSidebar = ({ source, destination, onSourceChange, onDestinationC
         <div><h1 className="text-xl font-bold text-gray-800">Hospital Navigator</h1><p className="text-sm text-gray-500">Select a start and end point.</p></div>
 
         <button
-          onClick={() => navigate('/')} // On click, navigate to the homepage
+          onClick={() => navigate('/my-appointments')} // On click, navigate to the homepage
           className="absolute top-5 right-5 z-[1000] bg-cyan-500 text-white font-bold py-3 px-6 rounded-full shadow-xl hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition-transform transform hover:scale-105"
         >
           Exit Navigator

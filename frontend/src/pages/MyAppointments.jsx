@@ -11,12 +11,20 @@ const MyAppointments = () => {
   const [error, setError] = useState(null);
   const { user } = useContext(AppContext);
 
+  // NEW: Add filter state
+  const [filters, setFilters] = useState({
+    status: 'all',
+    date_filter: 'all'
+  });
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
+
   useEffect(() => {
     if (user) {
       setLoading(true);
       apiClient.get('/api/appointments/')
         .then(response => {
           setAppointments(response.data);
+          setFilteredAppointments(response.data); // NEW: Initialize filtered appointments
           setLoading(false);
         })
         .catch(error => {
@@ -47,13 +55,107 @@ const MyAppointments = () => {
         console.error("Could not create session for receipt view:", error);
         alert("There was an error generating the receipt. Please try again.");
     }
-};
+  };
+
+  // NEW: Filter functions
+  const handleFilterChange = (filterType, value) => {
+    const newFilters = { ...filters, [filterType]: value };
+    setFilters(newFilters);
+    fetchFilteredAppointments(newFilters);
+  };
+
+  const fetchFilteredAppointments = async (currentFilters) => {
+    try {
+      const params = new URLSearchParams();
+      if (currentFilters.status !== 'all') {
+        params.append('status', currentFilters.status);
+      }
+      if (currentFilters.date_filter !== 'all') {
+        params.append('date_filter', currentFilters.date_filter);
+      }
+
+      const response = await apiClient.get(`/api/appointments/filter_appointments/?${params}`);
+      setFilteredAppointments(response.data);
+    } catch (error) {
+      console.error('Error filtering appointments:', error);
+    }
+  };
+
+  // NEW: Filter component
+  const AppointmentFilters = () => {
+    const statusOptions = [
+      { value: 'all', label: 'All' },
+      { value: 'scheduled', label: 'Scheduled' },
+      { value: 'completed', label: 'Completed' },
+      { value: 'cancelled', label: 'Cancelled' },
+      { value: 'no_show', label: 'No Show' }
+    ];
+
+    const dateOptions = [
+      { value: 'all', label: 'All Time' },
+      { value: 'today', label: 'Today' },
+      { value: 'upcoming', label: 'Upcoming' },
+      { value: 'past', label: 'Past' }
+    ];
+
+    return (
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border">
+        <div className="flex flex-wrap gap-4">
+          {/* Status Filters */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
+            <div className="flex flex-wrap gap-2">
+              {statusOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleFilterChange('status', option.value)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    filters.status === option.value
+                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Date Filters */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Date</h3>
+            <div className="flex flex-wrap gap-2">
+              {dateOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleFilterChange('date_filter', option.value)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    filters.date_filter === option.value
+                      ? 'bg-green-100 text-green-800 border border-green-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className='px-4 sm:px-10 py-8 min-h-screen'>
       <p className='pb-3 mt-12 font-medium text-zinc-700 border-b'>My appointments</p>
+      
+      {/* NEW: Add the filter component */}
+      <AppointmentFilters />
+      
       <div>
-        {appointments.length > 0 ? (
-          appointments.map((appointment) => (
+        {/* CHANGED: Use filteredAppointments instead of appointments */}
+        {filteredAppointments.length > 0 ? (
+          filteredAppointments.map((appointment) => (
             <div className='sm:flex items-center justify-between py-4 border-b' key={appointment.id}>
               {/* Appointment Info */}
               <div>
@@ -93,7 +195,7 @@ const MyAppointments = () => {
             </div>
           ))
         ) : (
-          <p className='text-center text-zinc-500 py-10'>You have no appointments scheduled.</p>
+          <p className='text-center text-zinc-500 py-10'>No appointments found for the selected filters.</p>
         )}
       </div>
     </div>

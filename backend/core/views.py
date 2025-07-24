@@ -20,51 +20,36 @@ from langchain_pinecone import PineconeVectorStore
 from .pinecone_utils import get_doctor_recommendations
 from .models import Doctor 
 from django.utils import timezone 
-from datetime import timedelta # Import timedelta for date calculations
-from django.db.models import Count, Q # <-- Import Q for complex queriesfrom django.utils import timezone
-
-
+from datetime import timedelta 
+from django.db.models import Count, Q 
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from django.core.exceptions import ValidationError
 
 
 
 
 class IsOwnerOrAdmin(BasePermission):
-    """
-    Custom permission to only allow owners of an object or admins to edit it.
-    """
+   
     def has_object_permission(self, request, view, obj):
-        # Write permissions are only allowed to the owner of the object or an admin.
-        # obj is the User instance being requested.
-        # request.user is the user making the request (from the token).
+       
         return obj == request.user or request.user.is_staff
 
 
 class IsPatientOwnerOrDoctorOrAdmin(BasePermission):
-    """
-    Custom permission for Appointment objects:
-    - Admins can do anything.
-    - The assigned doctor can do anything (view, update notes, etc.).
-    - The patient who owns the appointment can only view it (safe methods).
-    """
+   
     def has_object_permission(self, request, view, obj):
-        # The object 'obj' is an Appointment instance.
-        
-        # Rule 1: Admins have full access.
+       
         if request.user.is_staff:
             return True
         
-        # Rule 2: Check if the user is the doctor assigned to this appointment.
-        # This is a safer way to check the relationship.
+        
         if request.user.role == 'doctor' and obj.doctor.user_id == request.user.id:
             return True # Doctors get full access (GET, PATCH, PUT, etc.).
         
-        # Rule 3: Check if the user is the patient who booked this appointment.
         if request.user.role == 'patient' and obj.patient_id == request.user.id:
-            # Patients are only allowed "safe" methods (GET, HEAD, OPTIONS).
-            # This correctly blocks them from trying to PATCH or DELETE.
+            
             return request.method in permissions.SAFE_METHODS
         
-        # If none of the above rules match, deny permission.
         return False
 
 
@@ -73,64 +58,48 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
-        # For the 'create' action (signup), allow anyone.
+        
         if self.action == 'create':
             permission_classes = [AllowAny]
-        # For actions that modify a specific user, use our custom permission.
+    
         elif self.action in ['update', 'partial_update', 'destroy']:
             permission_classes = [IsOwnerOrAdmin]
-        # For listing all users, require admin status.
+   
         elif self.action == 'list':
             permission_classes = [IsAdminUser]
-        # For all other actions (like 'retrieve'), use the default.
         else:
             permission_classes = self.permission_classes
 
-        # This is the crucial part: instantiate and return the list of classes.
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        """
-        Return the appropriate serializer class based on the user's role.
-        """
+       
         if self.request.user.is_staff:
             return AdminUserSerializer
         return UserSerializer
 
     def perform_create(self, serializer):
-        """
-        Called when a new user is created. Securely sets the role to 'patient'.
-        """
+        
         user = serializer.save(role='patient')
     
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         
-        # --- 1. Handle the image file upload manually ---
         image_file = request.FILES.get('image')
         if image_file:
-            # If the user is a doctor, save to the Doctor model's image field
             if hasattr(instance, 'doctor'):
                 instance.doctor.image = image_file
                 instance.doctor.save()
             # Otherwise, save to the User model's own image field
             else:
                 instance.image = image_file
-                # The user instance will be saved by the serializer below
-        
-        # --- 2. Let the serializer handle all the other text-based fields ---
-        # We pass `partial=True` to indicate it's a PATCH request.
+  
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         
-        # This calls the serializer's .save() method, which in turn calls .update()
         self.perform_update(serializer)
 
-        # The serializer.data will now contain the updated user info,
-        # including the new image URL.
+       
         return Response(serializer.data)
 
 
@@ -174,18 +143,26 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
 
     def get_queryset(self):
-        """
-        Filters appointments to ensure users only see their own data.
-        """
+        
         user = self.request.user
-        if user.is_staff:
-            return Appointment.objects.all()
-        if user.role == 'doctor':
-            return Appointment.objects.filter(doctor__user=user)
-        if user.role == 'patient':
-            return Appointment.objects.filter(patient=user)
-        return Appointment.objects.none()
+    
+        queryset = Appointment.objects.all()
 
+        if user.role == 'doctor':
+            queryset = queryset.filter(doctor__user=user)
+
+        elif user.role == 'patient':
+            queryset = queryset.filter(patient=user)
+
+        elif not user.is_staff:
+            return Appointment.objects.none()
+
+        patient_id = self.request.query_params.get('patient_id', None)
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id)
+
+        return queryset.order_by('-date', '-time')
+        
     def get_serializer_class(self):
         """
         Use a different serializer for the 'list' action.
@@ -197,17 +174,26 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Automatically sets the logged-in user as the patient for a new appointment.
+        Updated to handle duplicate booking validation errors gracefully.
         """
         if self.request.user.role != 'patient':
             raise PermissionDenied("Only patients are allowed to book appointments.")
-        serializer.save(patient=self.request.user)
         
+        # Save the appointment with the patient
+        try:
+            serializer.save(patient=self.request.user)
+        except ValidationError as e:
+            # Convert Django ValidationError to DRF ValidationError for proper API response
+            
+            # Handle the error message properly
+            if hasattr(e, 'message_dict'):
+                raise DRFValidationError(e.message_dict)
+            elif hasattr(e, 'messages'):
+                raise DRFValidationError({'non_field_errors': e.messages})
+            else:
+                raise DRFValidationError({'detail': str(e)})
+            
         
-    # def update(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     if not instance.is_cancellable: # A simple check
-    #         return Response({'error': 'This appointment cannot be edited.'}, status=status.HTTP_400_BAD_REQUEST)
-    #     return super().update(request, *args, **kwargs)
     
     @action(detail=True, methods=['post'], url_path='complete')
     def complete_appointment(self, request, pk=None):
@@ -323,12 +309,35 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-# At the top of core/views.py, add these imports
-
-
-
-# ... (all your other views) ...
-
+    @action(detail=False, methods=['get'])
+    def filter_appointments(self, request):
+        """
+        Filter appointments by status and date.
+        Query params: status, date_filter
+        """
+        queryset = self.get_queryset()
+        
+        # Filter by status
+        status_filter = request.query_params.get('status')
+        if status_filter and status_filter != 'all':
+            queryset = queryset.filter(status=status_filter)
+        
+        # Filter by date
+        date_filter = request.query_params.get('date_filter')
+        if date_filter:
+            from django.utils import timezone
+            today = timezone.now().date()
+            
+            if date_filter == 'today':
+                queryset = queryset.filter(date=today)
+            elif date_filter == 'upcoming':
+                queryset = queryset.filter(date__gte=today)
+            elif date_filter == 'past':
+                queryset = queryset.filter(date__lt=today)
+        
+        # Use the list serializer for consistent formatting
+        serializer = AppointmentListSerializer(queryset, many=True)
+        return Response(serializer.data)
 # ========================================================================
 # DOCTOR DASHBOARD ENDPOINT
 # ========================================================================
@@ -361,8 +370,8 @@ class DoctorDashboardDataView(APIView):
             
             # 1. Total unique patients (your logic is perfect)
             total_patients_count = Appointment.objects.filter(
-                doctor__user=user, status='completed'
-            ).values('patient').distinct().count()
+                doctor__user=user
+            ).exclude(status='cancelled').values('patient').distinct().count()
 
             # 2. Today's SCHEDULED appointments count
             today_appointments_count = todays_appointments.filter(status='scheduled').count()
