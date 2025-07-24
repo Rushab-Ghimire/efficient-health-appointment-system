@@ -1,5 +1,9 @@
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-23 19:20:33.910253+00:00] Running reminder check...
+[2025-07-24 06:58:23.596025+00:00] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 06:58:23.596025
 Found 0 appointments needing 30-minute reminders
+Summary for 2025-07-24:
+  - Morning reminders sent: 0
+  - 30-minute reminders sent: 0
 Reminder check finished.
