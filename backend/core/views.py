@@ -25,7 +25,32 @@ from django.db.models import Count, Q
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError
 
+class TopRatedDoctorsView(APIView):
+    """
+    An endpoint to get a short, sorted list of the top doctors.
+    Sorts by experience years (descending), then by rating (descending).
+    Accepts an optional 'limit' query parameter.
+    """
+    permission_classes = [AllowAny] # This list is public
 
+    def get(self, request, *args, **kwargs):
+        # Get the 'limit' parameter from the URL, defaulting to 5 if not provided
+        try:
+            limit = int(request.query_params.get('limit', 5))
+        except (ValueError, TypeError):
+            limit = 5 # Fallback if the provided limit is not a valid number
+
+        # Build the queryset
+        top_doctors = Doctor.objects.filter(
+            is_active=True
+        ).order_by(
+            '-experience_years', # Sort by most experience first
+            '-rating'            # Then, sort by highest rating
+        )[:limit] # Slice the queryset to get only the top results
+
+        # Serialize the data and return it
+        serializer = DoctorSerializer(top_doctors, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class IsOwnerOrAdmin(BasePermission):

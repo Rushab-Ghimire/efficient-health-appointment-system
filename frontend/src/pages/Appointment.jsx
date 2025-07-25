@@ -116,12 +116,21 @@ const Appointment = () => {
         setError('');
         setSuccess('');
 
-        const formattedDate = selectedDate.toISOString().split('T')[0];
+    const formattedDate = selectedDate.getFullYear() + '-' + 
+    String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + 
+    String(selectedDate.getDate()).padStart(2, '0');        console.log('=== DATE DEBUG ===');
+        console.log('selectedDate object:', selectedDate);
+        console.log('selectedDate.toISOString():', selectedDate.toISOString());
+        console.log('formattedDate being sent:', formattedDate);
+        console.log('Today in browser:', new Date().toISOString().split('T')[0]);
+        console.log('Browser timezone offset:', new Date().getTimezoneOffset());
+        
         const payload = {
             doctor_id: doctor.id,
             date: formattedDate,
             time: selectedTime,
         };
+
 
         try {
             await apiClient.post('/api/appointments/', payload);

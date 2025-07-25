@@ -25,28 +25,25 @@ export const assets = {
 
 export const specialityData = [
   {
-    speciality: 'General physician',
+    speciality: 'Physical Therapy',
     image: General_physician
   },
   {
-    speciality: 'Gynecologist',
+    speciality: 'Gynecology',
     image: Gynecologist
   },
   {
-    speciality: 'Dermatologist',
+    speciality: 'Dermatology',
     image: Dermatologist
   },
   {
-    speciality: 'Pediatricians',
+    speciality: 'Pediatrics',
     image: Pediatricians
   },
   {
-    speciality: 'Neurologist',
+    speciality: 'Neurology',
     image: Neurologist
   },
-  {
-    speciality: 'Gastroenterologist',
-    image: Gastroenterologist
-  },
+  
 ]
 

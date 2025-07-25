@@ -22,18 +22,21 @@ import { FiMenu, FiX } from 'react-icons/fi';
 const internalPaths = {
   "Building 1": {
     "Cardiology": [
+      {type: 'floor', text: '2nd Floor'},
       { type: 'straight', text: 'Enter the main lobby.' },
       { type: 'elevator', text: 'Take the elevator to the 2nd Floor.' },
       { type: 'left', text: 'Turn left and follow the blue line on the floor.' },
       { type: 'ward', text: 'Cardiology reception is on your right.' }
     ],
-    "Neurology Clinic (1st Floor)": [
+    "Neurology": [
+      {type: 'floor', text: '1st Floor'},
       { type: 'straight', text: 'Enter the main lobby.' },
       { type: 'stairs', text: 'Take the stairs on your right to the 1st Floor.' },
       { type: 'right', text: 'Turn right at the top of the stairs.' },
       { type: 'ward', text: 'Neurology Clinic is at the end of the hallway.' }
     ],
-    "Pediatrics Ward (3rd Floor)": [
+    "Pediatrics": [
+      {type: 'floor', text: '3rd Floor'},
       { type: 'straight', text: 'Enter the main lobby.' },
       { type: 'elevator', text: 'Take the elevator to the 3rd Floor.' },
       { type: 'straight', text: 'Proceed straight into the brightly colored wing.' },
@@ -41,24 +44,28 @@ const internalPaths = {
     ],
   },
   "Building 2": {
-    "Orthopedics (Ground Floor)": [
+    "Orthopedics": [
+      {type: 'floor', text: 'Ground Floor'},
       { type: 'right', text: 'Enter and take an immediate right.' },
       { type: 'straight', text: 'Follow the hallway to the end.' },
       { type: 'ward', text: 'Orthopedics is Room G12 on your left.' }
     ],
-    "Dermatology (2nd Floor)": [
+    "Dermatology": [
+      {type: 'floor', text: '2nd Floor'},
       { type: 'straight', text: 'Enter and proceed to the central elevators.' },
       { type: 'elevator', text: 'Take the elevator to the 2nd Floor.' },
       { type: 'left', text: 'Turn left; the clinic is the third door on the right.' },
       { type: 'ward', text: 'Arrive at Dermatology, Suite 250.' }
     ],
-    "Radiology (Basement)": [
+    "Radiology": [
+      {type: 'floor', text: 'Basement'},
       { type: 'straight', text: 'Enter and find the main stairwell ahead.' },
       { type: 'stairs', text: 'Go down one flight of stairs to the Basement.' },
       { type: 'straight', text: 'Follow signs for Imaging & Radiology.' },
       { type: 'ward', text: 'Radiology reception is through the double doors.' }
     ],
-    "Oncology Clinic (3rd Floor)": [
+    "Oncology": [
+      {type: 'floor', text: '3rd Floor'},
       { type: 'straight', text: 'Enter and proceed to the central elevators.' },
       { type: 'elevator', text: 'Take the elevator to the 3rd Floor.' },
       { type: 'right', text: 'Turn right; follow the hallway to the west wing.' },
@@ -66,19 +73,22 @@ const internalPaths = {
     ],
   },
   "Building 3": {
-    "General Surgery (2nd Floor)": [
+    "General Surgery": [
+      {type: 'floor', text: '2nd Floor'},
       { type: 'straight', text: 'Enter through the west entrance.' },
       { type: 'stairs', text: 'Take stairs immediately to your left to the 2nd Floor.' },
       { type: 'straight', text: 'Proceed straight into the West Wing.' },
       { type: 'ward', text: 'General Surgery reception is at the end of the hall.' }
     ],
-    "ENT Clinic (1st Floor)": [
+    "ENT(Otolaryngology)": [
+      {type: 'floor', text: '1st Floor'},
       { type: 'straight', text: 'Enter through the west entrance.' },
       { type: 'stairs', text: 'Take stairs immediately to your left to the 1st Floor.' },
       { type: 'right', text: 'Turn right and the clinic is halfway down the hall.' },
       { type: 'ward', text: 'Arrive at the ENT Clinic.' }
     ],
-    "Physical Therapy (Ground Floor)": [
+    "Physical Therapy": [
+      {type: 'floor', text: 'Ground Floor'},
       { type: 'straight', text: 'Enter through the west entrance.' },
       { type: 'left', text: 'Turn left and follow the hallway around the corner.' },
       { type: 'straight', text: 'Proceed past the cafe.' },

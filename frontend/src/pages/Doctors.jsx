@@ -13,8 +13,8 @@ const Doctors = () => {
     // No need for a separate loading state here, the context handles it.
     
     const specialitiesList = [
-        "Cardiologist", "Dermatologist", "Gastroenterologist", "Neurologist", 
-        "Orthopedist", "Allergist", "Rheumatologist", "General Physician", "Gynecologist", "Pediatricians"
+        "Cardiology", "Dermatology", "Neurology", "Physical Therapy",
+        "Orthopedics", "ENT(Otolaryngology)", "Radiology", "Gynecology", "Pediatrics", "Oncology"
     ].sort(); // Sort them alphabetically for a better UI
 
     // Perform all filtering directly on the doctors list from the context
