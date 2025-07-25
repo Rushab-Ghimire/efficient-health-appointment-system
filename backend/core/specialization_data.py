@@ -1,11 +1,25 @@
 # core/specialization_data.py
 
 SPECIALIZATION_DESCRIPTIONS = {
-    'Cardiologist': 'A specialist in heart conditions, chest pain, high blood pressure, palpitations, and cardiovascular diseases.',
-    'Dermatologist': 'A specialist for skin issues, such as acne, eczema, psoriasis, skin rashes, moles, and skin cancer.',
-    'Gastroenterologist': 'An expert in digestive system disorders, including stomach pain, acid reflux, bloating, nausea, ulcers, and bowel issues.',
-    'Neurologist': 'A doctor who treats disorders of the brain, spinal cord, and nerves, such as headaches, migraines, seizures, numbness, and memory problems.',
-    'Orthopedist': 'A specialist for bone, joint, ligament, and muscle problems, including fractures, sports injuries, back pain, and arthritis of the joints.',
-    'Allergist': 'A doctor specializing in allergies, asthma, and immunological disorders, treating symptoms like sneezing, itchy eyes, hives, and sinus issues.',
-    'Rheumatologist': 'An expert in autoimmune diseases and musculoskeletal conditions like rheumatoid arthritis, lupus, joint stiffness, and systemic swelling.',
+    
+    "Cardiology": "A medical specialty focused on the diagnosis, treatment, and prevention of diseases of the cardiovascular system, which includes the heart and blood vessels. Cardiologists manage conditions such as coronary artery disease, heart failure, arrhythmias (irregular heartbeats), and hypertension (high blood pressure). Patients are often referred for symptoms like chest pain, shortness of breath, palpitations (a feeling of a racing or fluttering heart), dizziness, or swelling in the legs (edema).",
+
+    "Dermatology": "The field of medicine concerned with the diagnosis and treatment of conditions involving the skin, hair, and nails. Dermatologists address a wide spectrum of issues, from common problems like acne, eczema, psoriasis, and warts, to more serious diseases like skin cancer (e.g., melanoma). Patients seek dermatological care for symptoms such as persistent rashes, itching, changing moles, unusual skin lesions, hair loss (alopecia), and nail abnormalities.",
+
+    "Neurology": "A specialty dealing with disorders of the nervous system, including the brain, spinal cord, peripheral nerves, and muscles. Neurologists treat a vast range of conditions such as chronic headaches and migraines, epilepsy (seizures), stroke, Parkinson's disease, multiple sclerosis (MS), and dementia. Common symptoms that lead to a neurology consultation include numbness or tingling, muscle weakness, loss of coordination or balance, memory problems, and tremors.",
+
+    "Physical Therapy": "A healthcare profession focused on restoring and improving mobility, function, and quality of life. Physical Therapists design personalized programs to help patients recover from surgery (like a knee replacement), rehabilitate from injuries (such as sprains or strains), and manage chronic pain conditions like arthritis or low back pain. Treatment involves non-invasive techniques like therapeutic exercise, manual therapy, and patient education to reduce pain and improve strength and movement.",
+
+    "Orthopedics": "A surgical specialty that addresses conditions involving the musculoskeletal system: the body's bones, joints, ligaments, tendons, and muscles. Orthopedists treat acute problems like bone fractures, sports injuries (e.g., a torn ACL), and sprains, as well as chronic conditions like osteoarthritis, back pain, and carpal tunnel syndrome. Their work ranges from non-invasive treatments to surgical procedures like joint replacements.",
+
+    "Allergist": "A physician specializing in the diagnosis and treatment of allergies, asthma, and other immunological disorders. Allergists help patients manage conditions triggered by allergens like pollen, dust mites, food, and pets. Common symptoms they address include sneezing, a runny or stuffy nose (rhinitis), itchy or watery eyes, hives, skin rashes (eczema), and respiratory issues like coughing and wheezing. They perform allergy testing and may prescribe immunotherapy (allergy shots).",
+
+    "ENT(Otolaryngology)": "A medical and surgical specialty focused on conditions of the Ear, Nose, and Throat, and related structures of the head and neck. An ENT specialist, or Otolaryngologist, treats a wide array of problems including chronic sinus infections (sinusitis), hearing loss, tonsillitis, balance disorders like vertigo, voice hoarseness, and sleep apnea. Patients are seen for symptoms like earaches, persistent sore throats, nasal congestion, and difficulty swallowing.",
+
+    "General Physician": "Also known as a Primary Care Physician (PCP) or Family Doctor, a General Physician is the first point of contact for routine healthcare. They provide comprehensive care for patients of all ages, managing common acute illnesses like the cold and flu, as well as chronic conditions like diabetes and high blood pressure. Their role includes preventative care, health screenings, vaccinations, and referring patients to specialists when a more specific diagnosis or treatment is needed.",
+
+    "Gynecology": "A medical specialty focusing on the health of the female reproductive system, including the uterus, ovaries, and vagina. Gynecologists provide routine preventative care, such as Pap tests and pelvic exams, and manage conditions like menstrual disorders, pelvic pain, uterine fibroids, and vaginal infections. They also provide guidance on contraception (birth control), menopause, and screen for cancers of the reproductive organs. (Note: Often combined with obstetrics, which covers pregnancy and childbirth).",
+
+    "Pediatrics": "The branch of medicine dedicated to the health and medical care of infants, children, and adolescents, from birth up to the age of 18. Pediatricians are the primary care providers for young patients, managing their physical, behavioral, and mental health. They conduct well-child check-ups, provide vaccinations, and diagnose and treat common childhood illnesses like ear infections, asthma, fever, and rashes, while monitoring growth and development."
+
 }

@@ -9,6 +9,8 @@ from django.core.files import File
 import qrcode
 from datetime import time, date
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import RegexValidator
+
 
 
 class User(AbstractUser):
@@ -33,7 +35,16 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    phone_number_validator = RegexValidator(
+        regex=r'^\d{10}$', # This regex ensures exactly 10 digits
+        message="Phone number must be exactly 10 digits."
+    )
+    phone_number = models.CharField(
+        max_length=15, 
+        blank=True, 
+        null=True,
+        validators=[phone_number_validator] # Apply the validator here
+    )
     temporary_address = models.CharField(max_length=255, blank=True, null=True)
     permanent_address = models.CharField(max_length=255, blank=True, null=True)
 
@@ -125,7 +136,12 @@ class Appointment(models.Model):
                 raise ValidationError("Cannot book appointments in the past.")
         
             if self.date == date.today() and self.time < timezone.now().time():
-                raise ValidationError("Cannot book appointments in the past.")
+                current_time = timezone.now().time()
+                raise ValidationError(
+                    f"Cannot book appointments in the past. "
+                    f"Current time: {current_time.strftime('%H:%M')}, "
+                    f"Requested time: {self.time.strftime('%H:%M')}"
+                    )
 
             # Check if the patient already has an appointment with this doctor on the same day
             existing_appointment_on_day = Appointment.objects.filter(

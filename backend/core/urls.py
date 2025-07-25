@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet, DoctorViewSet, AppointmentViewSet,
-    get_current_user, recommend_doctor_ai, view_appointment_receipt, create_user_session, get_booked_slots, DoctorDashboardDataView, DoctorPatientsView
+    get_current_user, recommend_doctor_ai, view_appointment_receipt, create_user_session, get_booked_slots, DoctorDashboardDataView, DoctorPatientsView, TopRatedDoctorsView
 )
 
 router = DefaultRouter()
@@ -20,6 +20,8 @@ urlpatterns = [
     path('booked-slots/', get_booked_slots, name='get-booked-slots'),
     path('doctor/dashboard-data/', DoctorDashboardDataView.as_view(), name='doctor-dashboard-data'),
     path('doctor/patients/', DoctorPatientsView.as_view(), name='doctor-patients'),
+    path('doctors/top-rated/', TopRatedDoctorsView.as_view(), name='top-rated-doctors'),
+
 
     path('', include(router.urls)),
 ]

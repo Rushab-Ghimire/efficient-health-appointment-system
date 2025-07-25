@@ -7,3 +7,21 @@ Summary for 2025-07-24:
   - Morning reminders sent: 0
   - 30-minute reminders sent: 0
 Reminder check finished.
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-07-24 17:30:03.803865+00:00] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 17:30:03.803865
+Found 0 appointments needing 30-minute reminders
+Summary for 2025-07-24:
+  - Morning reminders sent: 0
+  - 30-minute reminders sent: 0
+Reminder check finished.
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-07-25 04:18:12.698867+00:00] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 04:18:12.698867
+Found 0 appointments needing 30-minute reminders
+Summary for 2025-07-25:
+  - Morning reminders sent: 0
+  - 30-minute reminders sent: 0
+Reminder check finished.
