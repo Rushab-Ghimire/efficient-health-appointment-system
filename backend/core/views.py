@@ -562,31 +562,57 @@ except Exception as e:
 # ========================================================================
 # AI DOCTOR RECOMMENDATION ENDPOINT
 # ========================================================================
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def recommend_doctor_ai(request):
     """
-    AI-powered doctor recommendation endpoint.
+    Enhanced AI-powered doctor recommendation endpoint
     """
     try:
         user_query = request.data.get('issue', '').strip()
-        
+       
         if not user_query:
-            return Response({'message': 'Medical issue query is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'message': 'Medical issue query is required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+       
+        # Use enhanced recommendation system with adaptive threshold
+        recommended_doctors = get_doctor_recommendations(
+            user_query, 
+            top_k=3, 
+            score_threshold=0.7  # Lower threshold, but system will adapt
+        )
         
-        # --- This is the key change ---
-        # Call the centralized utility function to get the list of recommended doctors
-        recommended_doctors = get_doctor_recommendations(user_query, top_k=3, score_threshold=0.25)
-        
-        # Serialize the final list of doctor objects
+        # Serialize the results
         serializer = DoctorSerializer(recommended_doctors, many=True)
-        
-        return Response({'recommendations': serializer.data})
-        
+       
+        return Response({
+            'recommendations': serializer.data,
+            'query': user_query,
+            'total_found': len(recommended_doctors),
+            'message': 'Recommendations generated successfully' if recommended_doctors else 'No specific matches found, showing general recommendations'
+        })
+       
     except Exception as e:
         print(f"Error in recommend_doctor_ai view: {e}")
-        return Response({'error': 'An internal server error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Emergency fallback - return some doctors
+        try:
+            fallback_doctors = list(Doctor.objects.filter(is_active=True)[:3])
+            serializer = DoctorSerializer(fallback_doctors, many=True)
+            return Response({
+                'recommendations': serializer.data,
+                'query': user_query,
+                'total_found': len(fallback_doctors),
+                'message': 'System error occurred, showing general practitioners',
+                'error': 'Recommendation system temporarily unavailable'
+            })
+        except:
+            return Response({
+                'error': 'An internal server error occurred.',
+                'recommendations': [],
+                'message': 'Please try again later'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

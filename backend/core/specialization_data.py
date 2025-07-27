@@ -1,25 +1,165 @@
-# core/specialization_data.py
+# /core/specialization_data.py
 
 SPECIALIZATION_DESCRIPTIONS = {
     
-    "Cardiology": "A medical specialty focused on the diagnosis, treatment, and prevention of diseases of the cardiovascular system, which includes the heart and blood vessels. Cardiologists manage conditions such as coronary artery disease, heart failure, arrhythmias (irregular heartbeats), and hypertension (high blood pressure). Patients are often referred for symptoms like chest pain, shortness of breath, palpitations (a feeling of a racing or fluttering heart), dizziness, or swelling in the legs (edema).",
+    "Cardiology": {
+        "core_focus": "Heart and blood vessels (Cardiovascular system).",
+        "conditions_treated": [
+            "Coronary artery disease", "Heart failure", "Hypertension (high blood pressure)",
+            "Arrhythmia", "High cholesterol", "Heart attack (Myocardial Infarction)", "Valvular heart disease"
+        ],
+        "symptoms_keywords": [
+            "chest pain", "chest pressure", "shortness of breath", "palpitations", "fluttering heart",
+            "racing heart", "irregular heartbeat", "dizziness", "fainting", "syncope", "swollen legs",
+            "edema", "high blood pressure", "fatigue with exertion", "pain in arm or jaw"
+        ],
+        "procedures_tests": ["ECG", "EKG", "echocardiogram", "stress test", "cardiac catheterization", "stent"]
+    },
 
-    "Dermatology": "The field of medicine concerned with the diagnosis and treatment of conditions involving the skin, hair, and nails. Dermatologists address a wide spectrum of issues, from common problems like acne, eczema, psoriasis, and warts, to more serious diseases like skin cancer (e.g., melanoma). Patients seek dermatological care for symptoms such as persistent rashes, itching, changing moles, unusual skin lesions, hair loss (alopecia), and nail abnormalities.",
+    "Dermatology": {
+        "core_focus": "Skin, hair, and nails.",
+        "conditions_treated": [
+            "Acne", "Eczema (Atopic Dermatitis)", "Psoriasis", "Warts", "Skin cancer", "Melanoma",
+            "Rosacea", "Moles", "Fungal infections", "Alopecia (hair loss)"
+        ],
+        "symptoms_keywords": [
+            "rash", "itchy skin", "pruritus", "changing mole", "new mole", "skin lesion", "skin growth",
+            "hair loss", "bald patches", "nail discoloration", "brittle nails", "hives", "blisters",
 
-    "Neurology": "A specialty dealing with disorders of the nervous system, including the brain, spinal cord, peripheral nerves, and muscles. Neurologists treat a vast range of conditions such as chronic headaches and migraines, epilepsy (seizures), stroke, Parkinson's disease, multiple sclerosis (MS), and dementia. Common symptoms that lead to a neurology consultation include numbness or tingling, muscle weakness, loss of coordination or balance, memory problems, and tremors.",
+            "dry skin", "acne", "pimples", "cysts"
+        ],
+        "procedures_tests": ["skin biopsy", "mole mapping", "cryotherapy", "light therapy"]
+    },
 
-    "Physical Therapy": "A healthcare profession focused on restoring and improving mobility, function, and quality of life. Physical Therapists design personalized programs to help patients recover from surgery (like a knee replacement), rehabilitate from injuries (such as sprains or strains), and manage chronic pain conditions like arthritis or low back pain. Treatment involves non-invasive techniques like therapeutic exercise, manual therapy, and patient education to reduce pain and improve strength and movement.",
+    "ENT(Otolaryngology)": {
+        "core_focus": "Ear, Nose, and Throat (ENT), and related head/neck structures.",
+        "conditions_treated": [
+            "Sinusitis (sinus infection)", "Hearing loss", "Tonsillitis", "Vertigo", "Sleep apnea",
+            "Allergic rhinitis", "Thyroid disorders", "Voice disorders"
+        ],
+        "symptoms_keywords": [
+            "sore throat", "sinus pain", "sinus pressure", "nasal congestion", "stuffy nose", "runny nose",
+            "hearing loss", "muffled hearing", "ringing in ears", "tinnitus", "dizziness", "vertigo",
+            "room spinning", "balance problems", "trouble swallowing", "dysphagia", "hoarseness", "losing voice",
+            "snoring", "earache", "ear pain", "lump in neck"
+        ],
+        "procedures_tests": ["audiogram (hearing test)", "endoscopy", "laryngoscopy", "sleep study"]
+    },
+    
+    "Gynecology": {
+        "core_focus": "Female reproductive system health.",
+        "patient_profile": "Female",
+        "conditions_treated": [
+            "Menstrual disorders", "Pelvic pain", "Uterine fibroids", "Ovarian cysts", "Endometriosis",
+            "Vaginal infections (e.g., yeast infection)", "Cervical dysplasia", "Menopause"
+        ],
+        "symptoms_keywords": [
+            "painful periods", "heavy periods", "irregular periods", "pelvic pain", "vaginal itching",
+            "unusual discharge", "pain during intercourse", "birth control", "contraception", "pap smear",
+            "menopause symptoms", "hot flashes", "pcos"
+        ],
+        "procedures_tests": ["Pap test", "pelvic exam", "ultrasound", "colposcopy", "IUD insertion"]
+    },
 
-    "Orthopedics": "A surgical specialty that addresses conditions involving the musculoskeletal system: the body's bones, joints, ligaments, tendons, and muscles. Orthopedists treat acute problems like bone fractures, sports injuries (e.g., a torn ACL), and sprains, as well as chronic conditions like osteoarthritis, back pain, and carpal tunnel syndrome. Their work ranges from non-invasive treatments to surgical procedures like joint replacements.",
+    "Neurology": {
+        "core_focus": "Nervous system (brain, spinal cord, nerves).",
+        "conditions_treated": [
+            "Migraine", "Headaches", "Epilepsy (seizures)", "Stroke", "Parkinson's disease",
+            "Multiple Sclerosis (MS)", "Dementia", "Alzheimer's disease", "Neuropathy"
+        ],
+        "symptoms_keywords": [
+            "headache", "migraine", "seizure", "numbness", "tingling", "pins and needles", "muscle weakness",
+            "loss of coordination", "balance issues", "memory loss", "confusion", "tremors", "shaking",
+            "dizziness", "slurred speech", "vision problems", "nerve pain", "sciatica"
+        ],
+        "procedures_tests": ["MRI", "CT scan", "EEG", "EMG", "lumbar puncture"]
+    },
+    
+    "Orthopedics": {
+        "core_focus": "Musculoskeletal system (bones, joints, ligaments, muscles).",
+        "conditions_treated": [
+            "Bone fractures", "Sports injuries", "ACL tear", "Torn meniscus", "Arthritis (Osteoarthritis)",
+            "Back pain", "Carpal tunnel syndrome", "Tendonitis", "Rotator cuff tear"
+        ],
+        "symptoms_keywords": [
+            "joint pain", "knee pain", "shoulder pain", "hip pain", "back pain", "broken bone", "fracture",
+            "sprain", "strain", "swollen joint", "limited range of motion", "clicking joint", "popping joint",
+            "numbness in hand", "sports injury"
+        ],
+        "procedures_tests": ["X-ray", "MRI", "joint replacement surgery", "arthroscopy"]
+    },
+    
+    "Pediatrics": {
+        "core_focus": "Medical care for infants, children, and adolescents.",
+        "patient_profile": "Birth to age 18",
+        "conditions_treated": [
+            "Childhood illnesses", "Ear infections (Otitis Media)", "Asthma", "Developmental delays",
+            "ADHD", "Common cold and flu"
+        ],
+        "symptoms_keywords": [
+            "fever", "cough", "rash", "vomiting", "diarrhea", "earache", "sore throat",
+            "vaccinations", "immunizations", "well-child check-up", "growth concerns",
+            "developmental milestones", "my child", "my baby", "my son", "my daughter"
+        ],
+        "procedures_tests": ["vaccination shots", "developmental screening", "hearing and vision tests"]
+    },
 
-    "Allergist": "A physician specializing in the diagnosis and treatment of allergies, asthma, and other immunological disorders. Allergists help patients manage conditions triggered by allergens like pollen, dust mites, food, and pets. Common symptoms they address include sneezing, a runny or stuffy nose (rhinitis), itchy or watery eyes, hives, skin rashes (eczema), and respiratory issues like coughing and wheezing. They perform allergy testing and may prescribe immunotherapy (allergy shots).",
+    "Physical Therapy": {
+        "core_focus": "Rehabilitation to restore movement, function, and reduce pain.",
+        "conditions_treated": [
+            "Post-surgical recovery (e.g., knee replacement)", "Sports injuries", "Chronic pain",
+            "Mobility issues", "Back and neck pain"
+        ],
+        "symptoms_keywords": [
+            "rehab", "rehabilitation", "recovery after surgery", "improve mobility", "regain strength",
+            "strengthening exercises", "physical therapy", "physiotherapy", "manage pain", "improve movement",
+            "poor posture", "stiffness"
+        ],
+        "procedures_tests": ["therapeutic exercise", "manual therapy", "gait analysis"]
+    },
 
-    "ENT(Otolaryngology)": "A medical and surgical specialty focused on conditions of the Ear, Nose, and Throat, and related structures of the head and neck. An ENT specialist, or Otolaryngologist, treats a wide array of problems including chronic sinus infections (sinusitis), hearing loss, tonsillitis, balance disorders like vertigo, voice hoarseness, and sleep apnea. Patients are seen for symptoms like earaches, persistent sore throats, nasal congestion, and difficulty swallowing.",
+    # The following were not in the image but were in your code. They are refined as well.
+    "Allergist": {
+        "core_focus": "Allergies, asthma, and immune system disorders.",
+        "conditions_treated": [
+            "Allergic Rhinitis (Hay Fever)", "Asthma", "Food allergies", "Eczema", "Hives (Urticaria)",
+            "Anaphylaxis"
+        ],
+        "symptoms_keywords": [
+            "sneezing", "runny nose", "stuffy nose", "itchy eyes", "watery eyes", "hives", "allergic rash",
+            "wheezing", "shortness of breath", "coughing", "food allergy", "pollen", "dust", "pet allergy", "seasonal allergies"
+        ],
+        "procedures_tests": ["skin prick test", "allergy blood test", "immunotherapy (allergy shots)"]
+    },
 
-    "General Physician": "Also known as a Primary Care Physician (PCP) or Family Doctor, a General Physician is the first point of contact for routine healthcare. They provide comprehensive care for patients of all ages, managing common acute illnesses like the cold and flu, as well as chronic conditions like diabetes and high blood pressure. Their role includes preventative care, health screenings, vaccinations, and referring patients to specialists when a more specific diagnosis or treatment is needed.",
-
-    "Gynecology": "A medical specialty focusing on the health of the female reproductive system, including the uterus, ovaries, and vagina. Gynecologists provide routine preventative care, such as Pap tests and pelvic exams, and manage conditions like menstrual disorders, pelvic pain, uterine fibroids, and vaginal infections. They also provide guidance on contraception (birth control), menopause, and screen for cancers of the reproductive organs. (Note: Often combined with obstetrics, which covers pregnancy and childbirth).",
-
-    "Pediatrics": "The branch of medicine dedicated to the health and medical care of infants, children, and adolescents, from birth up to the age of 18. Pediatricians are the primary care providers for young patients, managing their physical, behavioral, and mental health. They conduct well-child check-ups, provide vaccinations, and diagnose and treat common childhood illnesses like ear infections, asthma, fever, and rashes, while monitoring growth and development."
-
+    "General Physician": {
+        "core_focus": "Primary point of contact for general and preventive healthcare.",
+        "patient_profile": "All ages",
+        "conditions_treated": [
+            "Common cold", "Flu (Influenza)", "Diabetes management", "High blood pressure management",
+            "General health check-ups", "Minor infections"
+        ],
+        "symptoms_keywords": [
+            "check-up", "annual physical", "vaccination", "flu shot", "general wellness", "not feeling well",
+            "prescription refill", "referral", "screening", "cold symptoms", "fever", "sore throat", "routine care"
+        ],
+        "procedures_tests": ["blood pressure check", "blood tests", "health screenings"]
+    },
+        "Oncology": {
+        "core_focus": "Diagnosis and treatment of cancer and tumors.",
+        "conditions_treated": [
+            "Cancer", "Tumors", "Leukemia", "Lymphoma", "Melanoma", "Breast cancer", 
+            "Lung cancer", "Colon cancer", "Prostate cancer", "Ovarian cancer"
+        ],
+        "symptoms_keywords": [
+            "unexplained weight loss", "lump", "mass", "tumor", "persistent fatigue", 
+            "night sweats", "coughing up blood", "blood in stool", "a sore that does not heal",
+            "changes in bowel habits", "difficulty swallowing", "family history of cancer", 
+            "cancer diagnosis", "chemotherapy", "radiation", "new lump", "painless lump"
+        ],
+        "procedures_tests": [
+            "Biopsy", "Chemotherapy", "Radiation therapy", "Immunotherapy", 
+            "Targeted therapy", "PET scan", "CT scan", "Tumor markers"
+        ]
+    },
 }
