@@ -1,27 +1,71 @@
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-24 06:58:23.596025+00:00] Running reminder check...
-Outside morning reminder hours (7-8 AM). Current time: 06:58:23.596025
+[2025-08-31 08:18:18.185800+00:00] Running reminder check...
+Found 1 appointments needing morning reminders
+DEBUG: Original number: 9829301300, Formatted: +9779829301300
+SUCCESS: SMS sent via Infobip API to +9779829301300.
+Response: {'messages': [{'messageId': '4566284000477951979526', 'status': {'description': 'Message sent to next instance', 'groupId': 1, 'groupName': 'PENDING', 'id': 26, 'name': 'PENDING_ACCEPTED'}, 'to': '+9779829301300'}]}
+Traceback (most recent call last):
+  File "Z:\efficient health appointment system\backend\manage.py", line 22, in <module>
+    main()
+    ~~~~^^
+  File "Z:\efficient health appointment system\backend\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "Z:\efficient health appointment system\backend\.venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+    ~~~~~~~~~~~~~~~^^
+  File "Z:\efficient health appointment system\backend\.venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "Z:\efficient health appointment system\backend\.venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\efficient health appointment system\backend\.venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+  File "Z:\efficient health appointment system\backend\core\management\commands\send_reminders.py", line 39, in handle
+    self.stdout.write(f"\u2713 Sent morning reminder to {appt.patient.first_name} "
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    f"({appt.patient.phone_number}) for {appt.time.strftime('%I:%M %p')}")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\efficient health appointment system\backend\.venv\Lib\site-packages\django\core\management\base.py", line 181, in write
+    self._out.write(style_func(msg))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 0: character maps to <undefined>
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 08:23:31.127906+00:00] Running reminder check...
+Found 0 appointments needing morning reminders
 Found 0 appointments needing 30-minute reminders
-Summary for 2025-07-24:
-  - Morning reminders sent: 0
-  - 30-minute reminders sent: 0
 Reminder check finished.
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-24 17:30:03.803865+00:00] Running reminder check...
-Outside morning reminder hours (7-8 AM). Current time: 17:30:03.803865
+[2025-08-31 14:36:14.316312+05:45] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 14:36:14.316312
 Found 0 appointments needing 30-minute reminders
-Summary for 2025-07-24:
-  - Morning reminders sent: 0
-  - 30-minute reminders sent: 0
 Reminder check finished.
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-25 04:18:12.698867+00:00] Running reminder check...
-Outside morning reminder hours (7-8 AM). Current time: 04:18:12.698867
+[2025-08-31 14:40:42.797410+05:45] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 14:40:42.797410
 Found 0 appointments needing 30-minute reminders
-Summary for 2025-07-25:
-  - Morning reminders sent: 0
-  - 30-minute reminders sent: 0
+Reminder check finished.
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 14:48:30.373299+05:45] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 14:48:30.373299
+Found 0 appointments needing 30-minute reminders
+Reminder check finished.
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 14:52:30.506323+05:45] Running reminder check...
+Outside morning reminder hours (7-8 AM). Current time: 14:52:30.506323
+Found 1 appointments needing 30-minute reminders
+DEBUG: Original number: 9829301300, Formatted: +9779829301300
+SUCCESS: SMS sent via Infobip API to +9779829301300.
+Response: {'messages': [{'messageId': '4566313528537950445462', 'status': {'description': 'Message sent to next instance', 'groupId': 1, 'groupName': 'PENDING', 'id': 26, 'name': 'PENDING_ACCEPTED'}, 'to': '+9779829301300'}]}
+[OK] Sent 30-min reminder to nimesh (9829301300) for 03:00 PM
 Reminder check finished.

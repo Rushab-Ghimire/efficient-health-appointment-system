@@ -1,5 +1,3 @@
-# core/forms.py
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import User
@@ -24,10 +22,10 @@ class CustomUserCreationForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make email required
+        
         self.fields['email'].required = True
         
-        # Debug: Print field names
+        
         print("=== FORM FIELDS ===")
         for field_name in self.fields:
             print(f"Field: {field_name}")
@@ -42,7 +40,7 @@ class CustomUserCreationForm(UserCreationForm):
         if len(username) > 150:
             raise forms.ValidationError("Username must be 150 characters or fewer.")
         
-        # Check if username already exists
+        
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("A user with this username already exists.")
         
@@ -55,7 +53,7 @@ class CustomUserCreationForm(UserCreationForm):
         if not email:
             raise forms.ValidationError("Email is required.")
         
-        # Check if email already exists
+        
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with this email already exists.")
         
@@ -66,7 +64,7 @@ class CustomUserCreationForm(UserCreationForm):
         print("=== FORM CLEAN METHOD ===")
         print(f"Cleaned data: {cleaned_data}")
         
-        # Check password fields
+        
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
         

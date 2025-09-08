@@ -1,4 +1,4 @@
-# core/pinecone_utils.py (Enhanced Version)
+
 
 from django.conf import settings
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -11,14 +11,14 @@ from collections import defaultdict
 
 PINECONE_INDEX_NAME = "health-doctors-hf"
 
-# --- DEFINE THE EMBEDDING MODEL ONCE, GLOBALLY ---
+
 embedding_model = HuggingFaceEmbeddings(
     model_name="multi-qa-MiniLM-L6-cos-v1",
     model_kwargs={'device': 'cpu'},
     encode_kwargs={'normalize_embeddings': True}
 )
 
-# --- INITIALIZE PINECONE CONNECTION ONCE, GLOBALLY ---
+
 pinecone_vectorstore = None
 try:
     if all([settings.PINECONE_API_KEY, settings.PINECONE_ENVIRONMENT]):
@@ -37,32 +37,32 @@ def format_doctor_document(doctor: Doctor):
     """Creates a LangChain Document with enhanced content for better matching."""
     spec_data = SPECIALIZATION_DESCRIPTIONS.get(doctor.specialization, {})
     
-    # Create comprehensive content using your specialization data
+    
     content_parts = []
     
-    # Add core focus
+    
     if 'core_focus' in spec_data:
         content_parts.append(spec_data['core_focus'])
     
-    # Add symptoms (most important for matching)
+    
     if 'symptoms_keywords' in spec_data:
         symptoms_text = "Common symptoms: " + ", ".join(spec_data['symptoms_keywords'][:10])
         content_parts.append(symptoms_text)
     
-    # Add conditions
+    
     if 'conditions_treated' in spec_data:
         conditions_text = "Conditions treated: " + ", ".join(spec_data['conditions_treated'][:8])
         content_parts.append(conditions_text)
     
-    # Add procedures if available
+    
     if 'procedures_tests' in spec_data:
         procedures_text = "Procedures: " + ", ".join(spec_data['procedures_tests'][:5])
         content_parts.append(procedures_text)
     
-    # Combine all parts
+    
     comprehensive_description = ". ".join(content_parts)
     
-    # Use passage prefix for asymmetric search
+    
     content_to_embed = f"passage: {comprehensive_description}"
     
     metadata = {
@@ -85,31 +85,31 @@ def find_keyword_matches(user_query: str):
         score = 0
         matched_items = []
         
-        # High confidence: Direct symptom matches
+        
         for symptom in data.get('symptoms_keywords', []):
             if symptom.lower() in user_query_lower:
                 score += 0.8
                 matched_items.append(f"symptom:{symptom}")
         
-        # Medium confidence: Condition matches
+        
         for condition in data.get('conditions_treated', []):
-            # Check if any significant words from the condition appear in query
+            
             condition_words = [word for word in condition.lower().split() if len(word) > 3]
             if any(word in user_query_lower for word in condition_words):
                 score += 0.6
                 matched_items.append(f"condition:{condition}")
         
-        # Lower confidence: Procedure matches
+        
         for procedure in data.get('procedures_tests', []):
             if procedure.lower() in user_query_lower:
                 score += 0.4
                 matched_items.append(f"procedure:{procedure}")
         
-        # Bonus for multiple matches
+        
         if len(matched_items) > 1:
             score *= 1.1
         
-        # Normalize and store
+        
         if score > 0:
             matches[spec] = min(score, 1.0)
             print(f"Keyword match - {spec}: {matches[spec]:.4f} (matched: {matched_items[:2]})")
@@ -124,10 +124,10 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
     print(f"\n--- ENHANCED DEBUGGING ---")
     print(f"User Query: {user_query}")
     
-    # Step 1: Keyword matching (fast and accurate)
+    
     keyword_matches = find_keyword_matches(user_query)
     
-    # Step 2: Vector similarity search
+    
     vector_matches = {}
     vector_results = []
     
@@ -139,14 +139,14 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
             print("\n--- VECTOR SEARCH RESULTS ---")
             for doc, score in results_with_scores:
                 spec = doc.metadata.get('specialization')
-                vector_matches[spec] = max(vector_matches.get(spec, 0), score)  # Take best score per specialization
+                vector_matches[spec] = max(vector_matches.get(spec, 0), score)  
                 print(f"  Vector Score: {score:.4f} | Spec: {spec}")
                 vector_results.append((doc, score))
             
         except Exception as e:
             print(f"Vector search error: {e}")
     
-    # Step 3: Combine keyword and vector results intelligently
+    
     all_specializations = set(keyword_matches.keys()) | set(vector_matches.keys())
     combined_scores = {}
     
@@ -155,28 +155,28 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
         keyword_score = keyword_matches.get(spec, 0)
         vector_score = vector_matches.get(spec, 0)
         
-        # Intelligent weighting strategy
+        
         if keyword_score > 0.7:
-            # Strong keyword match - trust it heavily
+            
             combined_score = keyword_score * 0.8 + vector_score * 0.2
         elif keyword_score > 0 and vector_score > 0:
-            # Both methods agree - high confidence
-            combined_score = keyword_score * 0.6 + vector_score * 0.4 + 0.05  # Agreement bonus
+            
+            combined_score = keyword_score * 0.6 + vector_score * 0.4 + 0.05  
         elif keyword_score > 0:
-            # Only keyword match
+            
             combined_score = keyword_score * 0.7
         else:
-            # Only vector match
+            
             combined_score = vector_score * 0.8
         
         combined_scores[spec] = min(combined_score, 1.0)
         print(f"  {spec}: keyword={keyword_score:.3f}, vector={vector_score:.3f} → combined={combined_score:.4f}")
     
-    # Step 4: Apply adaptive threshold
+    
     adaptive_threshold = calculate_adaptive_threshold(combined_scores, score_threshold)
     print(f"\nAdaptive Threshold: {adaptive_threshold:.4f} (original: {score_threshold})")
     
-    # Step 5: Get qualifying specializations
+    
     qualifying_specs = [(spec, score) for spec, score in combined_scores.items() 
                        if score >= adaptive_threshold]
     qualifying_specs.sort(key=lambda x: x[1], reverse=True)
@@ -185,7 +185,7 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
     for spec, score in qualifying_specs:
         print(f"  {spec}: {score:.4f}")
     
-    # Step 6: Fetch doctors
+    
     recommended_doctors = []
     used_specializations = set()
     
@@ -193,7 +193,7 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
         if spec not in used_specializations:
             doctors = Doctor.objects.filter(specialization=spec, is_active=True)
             if doctors.exists():
-                # Add up to 2 doctors per specialization
+                
                 spec_doctors = list(doctors[:2])
                 recommended_doctors.extend(spec_doctors)
                 used_specializations.add(spec)
@@ -202,7 +202,7 @@ def get_doctor_recommendations(user_query: str, top_k: int = 5, score_threshold:
                 if len(recommended_doctors) >= top_k:
                     break
     
-    # Step 7: Fallback strategies if no results
+    
     if not recommended_doctors:
         recommended_doctors = apply_fallbacks(keyword_matches, vector_results, top_k)
     
@@ -220,10 +220,10 @@ def calculate_adaptive_threshold(combined_scores, original_threshold):
     scores = list(combined_scores.values())
     max_score = max(scores)
     
-    # If highest score is below original threshold, use a percentage of max score
+    
     if max_score < original_threshold:
-        adaptive_threshold = max_score * 0.7  # 70% of the highest score
-        # But don't go below a minimum threshold
+        adaptive_threshold = max_score * 0.7  
+        
         adaptive_threshold = max(adaptive_threshold, 0.1)
         return adaptive_threshold
     
@@ -236,7 +236,7 @@ def apply_fallbacks(keyword_matches, vector_results, top_k):
     """
     print("Applying fallback strategies...")
     
-    # Fallback 1: Use best keyword match regardless of threshold
+    
     if keyword_matches:
         best_spec = max(keyword_matches.items(), key=lambda x: x[1])[0]
         doctors = Doctor.objects.filter(specialization=best_spec, is_active=True)
@@ -244,7 +244,7 @@ def apply_fallbacks(keyword_matches, vector_results, top_k):
             print(f"Fallback 1: Using best keyword match - {best_spec}")
             return list(doctors[:top_k])
     
-    # Fallback 2: Use best vector match regardless of threshold
+    
     if vector_results:
         best_doc, _ = vector_results[0]
         best_spec = best_doc.metadata.get('specialization')
@@ -253,7 +253,7 @@ def apply_fallbacks(keyword_matches, vector_results, top_k):
             print(f"Fallback 2: Using best vector match - {best_spec}")
             return list(doctors[:top_k])
     
-    # Fallback 3: General practitioners
+    
     general_doctors = Doctor.objects.filter(
         specialization__icontains='General', 
         is_active=True
@@ -262,12 +262,12 @@ def apply_fallbacks(keyword_matches, vector_results, top_k):
         print("Fallback 3: Using General Practitioners")
         return list(general_doctors[:top_k])
     
-    # Fallback 4: Any active doctors
+    
     print("Fallback 4: Using any active doctors")
     return list(Doctor.objects.filter(is_active=True)[:top_k])
 
 
-# Keep your existing functions with minor enhancements
+
 def upsert_doctor(doctor_id: int):
     """Upserts a single doctor to the Pinecone index with enhanced content."""
     if pinecone_vectorstore is None:
@@ -276,7 +276,7 @@ def upsert_doctor(doctor_id: int):
     try:
         doctor = Doctor.objects.get(pk=doctor_id)
         if doctor.is_active:
-            document = format_doctor_document(doctor)  # Uses enhanced formatting
+            document = format_doctor_document(doctor)  
             pinecone_vectorstore.add_documents([document], ids=[str(doctor.id)])
             print(f"Successfully upserted Doctor ID: {doctor.id} to Pinecone with enhanced content.")
         else:

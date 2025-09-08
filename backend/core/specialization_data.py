@@ -1,4 +1,4 @@
-# /core/specialization_data.py
+
 
 SPECIALIZATION_DESCRIPTIONS = {
     
@@ -118,7 +118,7 @@ SPECIALIZATION_DESCRIPTIONS = {
         "procedures_tests": ["therapeutic exercise", "manual therapy", "gait analysis"]
     },
 
-    # The following were not in the image but were in your code. They are refined as well.
+    
     "Allergist": {
         "core_focus": "Allergies, asthma, and immune system disorders.",
         "conditions_treated": [

@@ -1,11 +1,11 @@
-# core/views.py
+
 from django.contrib.auth import authenticate
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .models import User, Doctor, Appointment
-from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer, AdminUserSerializer # Import the list serializer
+from .serializers import UserSerializer, DoctorSerializer, AppointmentSerializer, AppointmentListSerializer, AdminUserSerializer 
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, BasePermission
 from django.shortcuts import render, get_object_or_404
@@ -31,24 +31,24 @@ class TopRatedDoctorsView(APIView):
     Sorts by experience years (descending), then by rating (descending).
     Accepts an optional 'limit' query parameter.
     """
-    permission_classes = [AllowAny] # This list is public
+    permission_classes = [AllowAny] 
 
     def get(self, request, *args, **kwargs):
-        # Get the 'limit' parameter from the URL, defaulting to 5 if not provided
+        
         try:
             limit = int(request.query_params.get('limit', 5))
         except (ValueError, TypeError):
-            limit = 5 # Fallback if the provided limit is not a valid number
+            limit = 5 
 
-        # Build the queryset
+        
         top_doctors = Doctor.objects.filter(
             is_active=True
         ).order_by(
-            '-experience_years', # Sort by most experience first
-            '-rating'            # Then, sort by highest rating
-        )[:limit] # Slice the queryset to get only the top results
+            '-experience_years', 
+            '-rating'            
+        )[:limit] 
 
-        # Serialize the data and return it
+        
         serializer = DoctorSerializer(top_doctors, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -69,7 +69,7 @@ class IsPatientOwnerOrDoctorOrAdmin(BasePermission):
         
         
         if request.user.role == 'doctor' and obj.doctor.user_id == request.user.id:
-            return True # Doctors get full access (GET, PATCH, PUT, etc.).
+            return True 
         
         if request.user.role == 'patient' and obj.patient_id == request.user.id:
             
@@ -115,7 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if hasattr(instance, 'doctor'):
                 instance.doctor.image = image_file
                 instance.doctor.save()
-            # Otherwise, save to the User model's own image field
+            
             else:
                 instance.image = image_file
   
@@ -135,26 +135,26 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
        
-        # Start with the base list of all active doctors.
+        
         queryset = Doctor.objects.filter(is_active=True)
 
-        # Get the filter parameters from the URL (e.g., ?specialization=...)
+        
         specialization = self.request.query_params.get('specialization', None)
         max_fee = self.request.query_params.get('max_fee', None)
 
-        # If a specialization was provided, filter the queryset.
-        # The 'iexact' makes the search case-insensitive.
+        
+        
         if specialization:
             queryset = queryset.filter(specialization__iexact=specialization)
 
-        # If a max_fee was provided, filter the queryset.
-        # The 'lte' means "less than or equal to".
+        
+        
         if max_fee:
             try:
-                # We must convert the fee from a string to a number for the query.
+                
                 queryset = queryset.filter(appointment_fee__lte=float(max_fee))
             except (ValueError, TypeError):
-                # If someone provides an invalid fee (e.g., "abc"), just ignore it.
+                
                 pass
         return queryset
 
@@ -164,7 +164,7 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
 class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsPatientOwnerOrDoctorOrAdmin]
     
-    # This serializer is used by default for retrieve, create, update
+    
     serializer_class = AppointmentSerializer
 
     def get_queryset(self):
@@ -193,8 +193,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         Use a different serializer for the 'list' action.
         """
         if self.action == 'list':
-            return AppointmentListSerializer # Use the lightweight serializer for lists
-        return super().get_serializer_class() # Use the default for all other actions
+            return AppointmentListSerializer 
+        return super().get_serializer_class() 
 
     def perform_create(self, serializer):
         """
@@ -204,13 +204,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if self.request.user.role != 'patient':
             raise PermissionDenied("Only patients are allowed to book appointments.")
         
-        # Save the appointment with the patient
+        
         try:
             serializer.save(patient=self.request.user)
         except ValidationError as e:
-            # Convert Django ValidationError to DRF ValidationError for proper API response
             
-            # Handle the error message properly
+            
+            
             if hasattr(e, 'message_dict'):
                 raise DRFValidationError(e.message_dict)
             elif hasattr(e, 'messages'):
@@ -226,9 +226,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         A custom action for a doctor or admin to mark an appointment as 'completed'.
         Accessible via: POST /api/appointments/{id}/complete/
         """
-        appointment = self.get_object() # This gets the specific appointment by its ID
+        appointment = self.get_object() 
 
-        # Permission Check: Who can do this?
+        
         is_the_correct_doctor = (request.user.role == 'doctor' and appointment.doctor.user == request.user)
         is_an_admin = request.user.is_staff
 
@@ -238,18 +238,18 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Logic Check: Can this appointment be completed?
+        
         if appointment.status != 'scheduled':
             return Response(
                 {'error': f"This appointment cannot be completed as its status is already '{appointment.get_status_display()}'."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # The Action: Update the status
+        
         appointment.status = 'completed'
-        appointment.save(update_fields=['status']) # Efficiently save only the 'status' field
+        appointment.save(update_fields=['status']) 
 
-        # You could trigger another signal/notification here, e.g., "Send patient feedback survey"
+        
         
         return Response(
             {'status': 'Appointment marked as completed successfully.'},
@@ -258,7 +258,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         
     
 
-    # The old 'verify' method has been removed. This is the only custom action left.
+    
     @action(detail=True, methods=['post'], url_path='cancel')
     def cancel_appointment(self, request, pk=None):
         """
@@ -267,33 +267,33 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         """
         appointment = self.get_object()
 
-        # Permission Check: Only the patient who booked it can cancel.
-        # (Admins can also cancel, but they can do it directly via PUT/PATCH requests)
+        
+        
         if appointment.patient != request.user:
             return Response(
                 {'error': 'You do not have permission to cancel this appointment.'}, 
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Logic Check: Use the handy model property we created!
+        
         if not appointment.is_cancellable:
             return Response(
                 {'error': 'This appointment can no longer be cancelled (it may be in the past or already completed).'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # The Action: Update the status
+        
         appointment.status = 'cancelled'
         appointment.save(update_fields=['status'])
 
-        # You could trigger a notification here to inform the doctor that their slot has opened up.
+        
 
         return Response(
             {'status': 'Appointment cancelled successfully.'},
             status=status.HTTP_200_OK
         )
     
-    # core/views.py -> inside AppointmentViewSet
+    
 
     @action(detail=True, methods=['post'], url_path='no-show')
     def mark_as_no_show(self, request, pk=None):
@@ -303,7 +303,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         """
         appointment = self.get_object()
 
-        # Permission Check (same as completing an appointment)
+        
         is_the_correct_doctor = (request.user.role == 'doctor' and appointment.doctor.user == request.user)
         is_an_admin = request.user.is_staff
 
@@ -313,7 +313,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Logic Check: Can only mark past, scheduled appointments as no-shows.
+        
         if not appointment.is_past:
              return Response(
                 {'error': 'Cannot mark an upcoming appointment as a no-show.'},
@@ -325,7 +325,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # The Action
+        
         appointment.status = 'no_show'
         appointment.save(update_fields=['status'])
 
@@ -342,12 +342,12 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         
-        # Filter by status
+        
         status_filter = request.query_params.get('status')
         if status_filter and status_filter != 'all':
             queryset = queryset.filter(status=status_filter)
         
-        # Filter by date
+        
         date_filter = request.query_params.get('date_filter')
         if date_filter:
             from django.utils import timezone
@@ -360,12 +360,12 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             elif date_filter == 'past':
                 queryset = queryset.filter(date__lt=today)
         
-        # Use the list serializer for consistent formatting
+        
         serializer = AppointmentListSerializer(queryset, many=True)
         return Response(serializer.data)
-# ========================================================================
-# DOCTOR DASHBOARD ENDPOINT
-# ========================================================================
+
+
+
 class DoctorDashboardDataView(APIView):
     """
     An endpoint that aggregates all necessary data for the doctor's dashboard.
@@ -385,40 +385,40 @@ class DoctorDashboardDataView(APIView):
             today = timezone.now().date()
             next_week = today + timedelta(days=7)
             
-            # Get today's appointments (can include all statuses for the list)
+            
             todays_appointments = Appointment.objects.filter(
                 doctor__user=user,
                 date=today
             ).order_by('time')
 
-            # --- STATS CALCULATION ---
             
-            # 1. Total unique patients (your logic is perfect)
+            
+            
             total_patients_count = Appointment.objects.filter(
                 doctor__user=user
             ).exclude(status='cancelled').values('patient').distinct().count()
 
-            # 2. Today's SCHEDULED appointments count
+            
             today_appointments_count = todays_appointments.filter(status='scheduled').count()
 
-            # --- 3. NEW: Appointments This Week count ---
+            
             appointments_this_week_count = Appointment.objects.filter(
                 doctor__user=user,
                 date__range=[today, next_week],
                 status='scheduled'
             ).count()
 
-            # --- 4. NEW: Completion Rate calculation ---
+            
             completed_count = Appointment.objects.filter(doctor__user=user, status='completed').count()
             no_show_count = Appointment.objects.filter(doctor__user=user, status='no_show').count()
             total_past_appointments = completed_count + no_show_count
             
             completion_rate = int((completed_count / total_past_appointments) * 100) if total_past_appointments > 0 else 100
 
-            # Serialize today's appointments for the list
+            
             todays_appointments_data = AppointmentListSerializer(todays_appointments, many=True).data
             
-            # Assemble the final data payload with the new stats
+            
             dashboard_data = {
                 "doctor_name": user.first_name,
                 "todays_appointments": todays_appointments_data,
@@ -448,7 +448,7 @@ class DoctorPatientsView(APIView):
         
         patient_ids = Appointment.objects.filter(
             doctor__user=request.user,
-            status__in=['completed', 'scheduled'] # Show current and past patients
+            status__in=['completed', 'scheduled'] 
         ).values_list('patient_id', flat=True).distinct()
 
         patients = User.objects.filter(id__in=patient_ids)
@@ -473,7 +473,7 @@ def custom_login_view(request):
         
         token, created = Token.objects.get_or_create(user=user)
         
-        # Include user details in the login response
+        
         user_data = UserSerializer(user).data
         
         return Response({
@@ -490,24 +490,24 @@ def view_appointment_receipt(request, appointment_id):
     """
     A view to display a rich HTML receipt for an appointment.
     """
-    # Get the appointment, making sure it exists.
+    
     appointment = get_object_or_404(Appointment, pk=appointment_id)
 
-    # --- SECURITY CHECK ---
-    # Ensure the logged-in user is either the patient or an admin.
+    
+    
     if not (request.user.is_staff or appointment.patient == request.user):
         return HttpResponse("You do not have permission to view this receipt.", status=403)
 
-    # The context is a dictionary of data we send to the template.
+    
     context = {
         'appointment': appointment
     }
 
-    # Render the HTML page and return it as the response.
+    
     return render(request, 'core/receipt_page.html', context)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) # Ensures only logged-in users can access this
+@permission_classes([IsAuthenticated]) 
 def get_current_user(request):
     """
     Determines the current user by their token and returns their data.
@@ -517,20 +517,20 @@ def get_current_user(request):
 
 @csrf_exempt 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) # Ensures only users with a valid token can use this
+@permission_classes([IsAuthenticated]) 
 def create_user_session(request):
     """
     Takes a user authenticated by a token and logs them into a
     stateful Django session. This sets the session cookie required
     for views using @login_required.
     """
-    # The user is already identified by TokenAuthentication
+    
     user = request.user
 
     user.backend = 'core.backends.EmailOrUsernameBackend'
 
     
-    # Log the user into the session framework
+    
     login(request, user)
     
     return Response({'status': 'session created'}, status=status.HTTP_200_OK)
@@ -538,14 +538,14 @@ def create_user_session(request):
 
 pinecone_vectorstore = None
 try:
-    # Check for the necessary API keys from settings.py
+    
     if all([settings.PINECONE_API_KEY, settings.PINECONE_ENVIRONMENT]):
-        # Initialize the free, open-source embedding model
+        
         embeddings = HuggingFaceEmbeddings(model_name="multi-qa-MiniLM-L6-cos-v1")
         
-        # Connect to your existing Pinecone index
+        
         pinecone_vectorstore = PineconeVectorStore.from_existing_index(
-            index_name="health-doctors-hf",  # This MUST match the index name you created
+            index_name="health-doctors-hf",  
             embedding=embeddings
         )
         print("Pinecone vector store (Hugging Face) connected successfully.")
@@ -553,15 +553,15 @@ try:
         print("Pinecone credentials missing. AI Recommendation feature will be disabled.")
 except Exception as e:
     print(f"Error connecting to Pinecone (Hugging Face): {e}. AI Recommendation feature will be disabled.")
-# ---
 
 
 
 
 
-# ========================================================================
-# AI DOCTOR RECOMMENDATION ENDPOINT
-# ========================================================================
+
+
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def recommend_doctor_ai(request):
@@ -576,14 +576,14 @@ def recommend_doctor_ai(request):
                 'message': 'Medical issue query is required.'
             }, status=status.HTTP_400_BAD_REQUEST)
        
-        # Use enhanced recommendation system with adaptive threshold
+        
         recommended_doctors = get_doctor_recommendations(
             user_query, 
             top_k=3, 
-            score_threshold=0.7  # Lower threshold, but system will adapt
+            score_threshold=0.7  
         )
         
-        # Serialize the results
+        
         serializer = DoctorSerializer(recommended_doctors, many=True)
        
         return Response({
@@ -596,7 +596,7 @@ def recommend_doctor_ai(request):
     except Exception as e:
         print(f"Error in recommend_doctor_ai view: {e}")
         
-        # Emergency fallback - return some doctors
+        
         try:
             fallback_doctors = list(Doctor.objects.filter(is_active=True)[:3])
             serializer = DoctorSerializer(fallback_doctors, many=True)

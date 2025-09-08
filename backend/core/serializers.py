@@ -1,4 +1,4 @@
-# core/serializers.py
+
 
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
@@ -9,7 +9,7 @@ from rest_framework.validators import UniqueValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # This field is only for validating password confirmation during signup/update.
+    
     password_confirm = serializers.CharField(write_only=True, required=False)
     image = serializers.SerializerMethodField()
 
@@ -20,11 +20,11 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name', 'role', 
             'phone_number', 'temporary_address', 'permanent_address', 
             'gender', 'date_of_birth', 'image',
-            'password', 'password_confirm' # Include password fields for create/update
+            'password', 'password_confirm' 
         )
         
-        # We make certain fields read-only when RETRIEVING a user,
-        # but they are writeable when creating/updating.
+        
+        
         read_only_fields = ('role', 'image') 
 
         extra_kwargs = {
@@ -37,8 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
                     )
                 ]
             },
-            # The 'username' uniqueness is already handled by the model,
-            # but we can add a validator here for a better API error message.
+            
+            
             'username': {
                 'validators': [
                     UniqueValidator(
@@ -52,10 +52,10 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         image_url = None
 
-        # Prioritize the doctor-specific image if it exists
+        
         if hasattr(obj, 'doctor') and obj.doctor.image:
             image_url = obj.doctor.image.url
-        # Fall back to the user's own image
+        
         elif obj.image:
             image_url = obj.image.url
         
@@ -78,12 +78,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update and return an existing `User` instance, given the validated data."""
-        # Handle password update separately to ensure it's hashed.
+        
         password = validated_data.pop('password', None)
         validated_data.pop('password_confirm', None)
 
-        # Update all other fields from validated_data.
-        # This automatically handles the image file correctly.
+        
+        
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -130,7 +130,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         write_only=True
     )
     
-    # Add helpful computed fields
+    
     is_past = serializers.ReadOnlyField()
     is_today = serializers.ReadOnlyField()
     is_upcoming = serializers.ReadOnlyField()
@@ -155,49 +155,49 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     def validate_time(self, time_value):
         """Validate appointment time"""
-        # Check if time is in valid format and reasonable hours
+        
         if time_value < time(6, 0) or time_value > time(22, 0):
             raise serializers.ValidationError(
                 "Appointment time must be between 6:00 AM and 10:00 PM."
             )
         return time_value
 
-   # In core/serializers.py, inside the AppointmentSerializer class
+   
 
-# ... (keep your Meta class and validate_date/validate_time methods) ...
+
 
     def validate(self, data):
         """
         This method integrates the model's `clean()` method into the serializer's
         validation process, making it the single source of truth for business rules.
         """
-        # If this is an update request just to add notes, we can skip the complex validation.
+        
         if self.instance and 'doctor_notes' in data and len(data) == 1:
             return data
 
-        # Create a temporary, in-memory instance of the Appointment model.
-        # We start with the existing instance's data (if updating) and override
-        # it with the new data from the request.
+        
+        
+        
         instance = Appointment(**{**self.instance.__dict__, **data}) if self.instance else Appointment(**data)
 
-        # The model's `clean()` method needs the patient to run its checks.
-        # For new appointments, the patient is not in the `data`, so we must get it
-        # from the request context that the view provides to the serializer.
-        if not self.instance: # This is a new appointment being created.
+        
+        
+        
+        if not self.instance: 
             request = self.context.get("request")
             if request and hasattr(request, "user"):
                 instance.patient = request.user
             else:
-                # This should not happen if permissions are set up correctly.
+                
                 raise serializers.ValidationError("Authentication error: Cannot determine patient.")
 
         try:
-            # This is the key step: run all the validation rules from your model's clean() method.
-            # This will check for same-day duplicates, booking in the past, etc.
+            
+            
             instance.clean()
         except ValidationError as e:
-            # Convert Django's ValidationError into a DRF-friendly format.
-            # This ensures the front-end receives a clean JSON error response.
+            
+            
             raise serializers.ValidationError(e.message_dict if hasattr(e, 'message_dict') else e.messages)
 
         return data
@@ -237,7 +237,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        # Include all fields, including the role
+        
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'role', 
             'phone_number', 'temporary_address', 'permanent_address', 

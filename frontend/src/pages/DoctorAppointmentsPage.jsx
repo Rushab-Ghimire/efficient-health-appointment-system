@@ -55,7 +55,6 @@ const DoctorAppointmentsPage = () => {
         const statusLabels = {
             scheduled: 'Scheduled',
             completed: 'Completed',
-            cancelled: 'Cancelled',
             no_show: 'No Show'
         };
 
@@ -103,7 +102,6 @@ const DoctorAppointmentsPage = () => {
         { key: 'all', label: 'All', count: appointments.length },
         { key: 'scheduled', label: 'Scheduled', count: appointments.filter(a => a.status === 'scheduled').length },
         { key: 'completed', label: 'Completed', count: appointments.filter(a => a.status === 'completed').length },
-        { key: 'cancelled', label: 'Cancelled', count: appointments.filter(a => a.status === 'cancelled').length },
         { key: 'no_show', label: 'No Show', count: appointments.filter(a => a.status === 'no_show').length }
     ];
 
@@ -302,7 +300,7 @@ const DoctorAppointmentsPage = () => {
                                                             {appt.patient_name}
                                                         </div>
                                                         <div className="text-sm text-gray-500">
-                                                            ID: {appt.patient}
+                                                            ID: {appt.id}
                                                         </div>
                                                     </div>
                                                 </div>

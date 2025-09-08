@@ -13,7 +13,6 @@ class UserAdmin(BaseUserAdmin):
     form = CustomUserChangeForm
     model = User
 
-    # Fields for editing existing users
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal Info', {'fields': ('first_name', 'last_name', 'date_of_birth', 'gender', 'image')}),
@@ -22,7 +21,6 @@ class UserAdmin(BaseUserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
-    # CRITICAL: Fields for adding new users
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -66,19 +64,17 @@ class UserAdmin(BaseUserAdmin):
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
             
-            # Print non-field errors
             if form.non_field_errors():
                 print(f"Non-field errors: {form.non_field_errors()}")
                 for error in form.non_field_errors():
                     messages.error(request, f"Error: {error}")
             
-            return  # Stop saving if form is invalid
+            return  
         
         print("=== SAVING USER ===")
         super().save_model(request, obj, form, change)
         messages.success(request, f"User {obj.username} saved successfully!")
 
-# Rest of your admin remains the same
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'specialization', 'appointment_fee','available_from', 'available_to')

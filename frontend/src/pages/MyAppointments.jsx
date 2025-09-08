@@ -87,7 +87,6 @@ const MyAppointments = () => {
       { value: 'all', label: 'All' },
       { value: 'scheduled', label: 'Scheduled' },
       { value: 'completed', label: 'Completed' },
-      { value: 'cancelled', label: 'Cancelled' },
       { value: 'no_show', label: 'No Show' }
     ];
 

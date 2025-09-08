@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
@@ -127,11 +127,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'core.User'
 
-# --- Twilio SMS Configuration ---
-# Read credentials securely from the .env file
-# TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-# TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-# TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
 
 INFOBIP_BASE_URL = os.getenv('INFOBIP_BASE_URL')
 INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
@@ -143,39 +139,35 @@ INFOBIP_SENDER_ID = os.getenv('INFOBIP_SENDER_ID')
 # ========================================================================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication', # This enables token-based auth
-        'rest_framework.authentication.SessionAuthentication', # This keeps the browsable API working
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', # Sets a default policy for all views
+        'rest_framework.permissions.IsAuthenticated', 
     ]
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", # The default port for Vite React apps
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
 CORS_ALLOW_HEADERS = [
     'accept',
-    'authorization', # <--- THIS IS THE IMPORTANT PART
+    'authorization', 
     'content-type',
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
 ]
 
-# If you use session/cookie based auth (you are using token, but good to have)
 CORS_ALLOW_CREDENTIALS = True
 
-# backend/settings.py
 AUTH_USER_MODEL = 'core.User' 
 
 AUTHENTICATION_BACKENDS = [
-    # This is our custom backend
     'core.backends.EmailOrUsernameBackend',
     
-    # This is the default Django backend. Keep it as a fallback.
     'django.contrib.auth.backends.ModelBackend',
 ]
 

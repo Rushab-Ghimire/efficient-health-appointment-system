@@ -1,16 +1,16 @@
-# core/signals.py
+
 
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from .models import User, Doctor, Appointment 
 
-# --- Import your Twilio utility and the new Pinecone utilities ---
+
 from .utils import send_infobip_sms
 from .pinecone_utils import upsert_doctor, delete_doctor
 
-# ========================================================================
-# APPOINTMENT SIGNALS
-# ========================================================================
+
+
+
 
 @receiver(post_save, sender=Appointment)
 def send_appointment_confirmation_sms(sender, instance: Appointment, created: bool, **kwargs):
@@ -32,21 +32,21 @@ def handle_cancellation_notification(sender, instance: Appointment, **kwargs):
     Checks if an appointment status is changing from 'scheduled' to 'cancelled'
     and triggers a notification.
     """
-    if instance.pk: # Only run for existing appointments that are being updated
+    if instance.pk: 
         try:
             old_instance = Appointment.objects.get(pk=instance.pk)
-            # Detect the specific status change
+            
             if old_instance.status == 'scheduled' and instance.status == 'cancelled':
                 doctor_email = instance.doctor.user.email
                 patient_name = instance.patient.get_full_name()
-                # In a real app, you would send an email here. For now, we print.
+                
                 print(f"NOTIFICATION LOGIC: Sending email to {doctor_email} that {patient_name} has cancelled their appointment for {instance.date} at {instance.time}.")
         except Appointment.DoesNotExist:
-            pass # This is a new appointment, so do nothing.
+            pass 
 
-# ========================================================================
-# USER & DOCTOR SIGNALS
-# ========================================================================
+
+
+
 
 @receiver(post_save, sender=User)
 def create_doctor_profile_on_user_creation(sender, instance: User, created: bool, **kwargs):
@@ -56,12 +56,12 @@ def create_doctor_profile_on_user_creation(sender, instance: User, created: bool
     """
     if created and instance.role == 'doctor':
         Doctor.objects.create(user=instance)
-        # Use instance.email as it's the unique identifier now
+        
         print(f"Doctor profile automatically created for user: {instance.email}")
 
-# ========================================================================
-# PINECONE AI INDEXING SIGNALS
-# ========================================================================
+
+
+
 
 @receiver(post_save, sender=Doctor)
 def doctor_post_save_handler(sender, instance: Doctor, **kwargs):

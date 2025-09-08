@@ -1,16 +1,39 @@
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-24 06:57:55] Running job to update missed appointments...
-Grace period: 15 minutes
+[2025-08-31 08:17:57] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 13:47:57
+Found 4 appointments to be marked as no-show:
+  - ID 37: tom rai with Dr. Reshika Shrestha on 2025-08-27 at 16:00:00
+  - ID 38: nimesh adhikari with Dr. Prajwal Limbu on 2025-08-27 at 16:00:00
+  - ID 36: tom rai with Dr. Govinda Ghimire on 2025-08-28 at 12:30:00
+  - ID 42: nimesh adhikari with Dr. Prasna Basnet on 2025-08-30 at 14:00:00
+Updating 4 appointments now...
+Successfully updated 4 appointments to 'No-Show' status.
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 08:23:10] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 13:53:10
 No missed appointments to update. All good!
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-24 17:29:42] Running job to update missed appointments...
-Grace period: 15 minutes
-Found 1 appointments to mark as 'No-Show'. Updating now...
+[2025-08-31 08:50:52] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 14:20:52
+No missed appointments to update. All good!
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 08:55:20] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 14:25:20
+No missed appointments to update. All good!
+Pinecone vector store (Hugging Face) connected successfully.
+Pinecone vector store (Hugging Face) connected successfully.
+[2025-08-31 09:03:08] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 14:33:08
+Found 1 appointments to be marked as no-show:
+  - ID 45: nimesh adhikari with Dr. Rushab Ghimire on 2025-08-31 at 14:30:00
+Updating 1 appointments now...
 Successfully updated 1 appointments to 'No-Show' status.
 Pinecone vector store (Hugging Face) connected successfully.
 Pinecone vector store (Hugging Face) connected successfully.
-[2025-07-25 04:17:49] Running job to update missed appointments...
-Grace period: 15 minutes
+[2025-08-31 09:07:08] Running job to update missed appointments...
+Comparing against naive cutoff time: 2025-08-31 14:37:08
 No missed appointments to update. All good!
